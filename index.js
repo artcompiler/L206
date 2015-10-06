@@ -1,19 +1,18 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil; tab-width: 2 -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /*
-   L000 compiler service.
+   L110 compiler service.
 */
 var fs = require('fs');
 var http = require('http');
 var express = require('express')
 var app = express();
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 5110));
 app.set('views', __dirname);
 app.use(express.static(__dirname + '/pub'));
 app.get('/', function(req, res) {
-  res.send("Hello, L000!");
+  res.send("Hello, L110!");
 });
-
 
 var compiler = require("./lib/compile.js");
 // Graffiti Code will load the version of itself that matches the graffiti
@@ -43,6 +42,7 @@ app.get('/compile', function(req, res) {
       } else {
         res.send({
           data: val,
+          objectCode: val,
         });
       }
     });
