@@ -265,22 +265,31 @@ let translate = (function() {
     return node;
   }
 
-  function parseItemName(rootName, str, pool, parent) {
+  function getNode(root, name) {
+//    console.log("getNode() name=" + name + " root=" + JSON.stringify(root, null, 2));
+    var node;
+    if (!(node = root[name])) {
+      node = root[name] = {
+      };
+    };
+    return node;
+  }
+
+  function parseIndex(rootName, str, root) {
     // #CCSS.Math.Content.8.EE.C.7
-    // A pool is an hash table, aka object.
     var start = str.indexOf(rootName);
     str = str.substring(start);
     var name = rootName;
-    var node = {}; getNodeFromPool(name, pool, parent);
+    var node = getNode(root, name);
     str = str.substring(rootName.length);
     while (str.charAt(0) === ".") {
       str = str.substring(1);
       var part = getAlphaNumericPrefix(str);
       name += "." + part;
-      node = getNodeFromPool(name, pool, node.children);
+      node = getNode(node, name);
       str = str.substring(part.length);
     }
-    return node;
+    return;
   }
 
   var START   = 1;
@@ -471,7 +480,7 @@ let translate = (function() {
 
   function data(node, options, resume) {
     visit(node.elts[0], options, function (err, val) {
-      var source = val.value;
+      var indexStr = val.value;
       get("/pieces/L106?q=" + val.value, null, function (err, val) {
 //        console.log("get() val=" + JSON.stringify(val, null, 2));
         var list = [];
@@ -492,7 +501,8 @@ let translate = (function() {
               var method = srcObj.method;
               var value = srcObj.arg2 ? srcObj.arg1 : null;
               var response = srcObj.arg2 ? srcObj.arg2 : srcObj.arg1;
-              var node = parseItemName(source, src, names, children);
+              parseIndex(indexStr, src, root);
+/*
               var objectCode = val.obj;
               if (!objectCode) {
                 return;
@@ -539,11 +549,12 @@ let translate = (function() {
                 });
               }
               breadth++;
+*/
             } catch (e) {
               console.log(e.stack);
             }
           });
-          resume(err, children);
+          resume(err, root);
         });
       });
     });
@@ -585,12 +596,13 @@ export let compiler = (function () {
     // an object to be rendered on the client by the viewer for this language.
     try {
       translate(pool, function (err, val) {
-//        console.log("translate err=" + JSON.stringify(err, null, 2) + "\nval=" + JSON.stringify(val, null, 2));
         if (err.length) {
           resume(err, val);
         } else {
           render(val, function (err, val) {
-//            console.log("render err=" + JSON.stringify(err, null, 2) + "\nval=" + JSON.stringify(val, null, 2));
+            if (val instanceof Array && val.length === 1) {
+              val = val[0];
+            }
             resume(err, val);
           });
         }
