@@ -419,41 +419,6 @@ let translate = (function() {
     };
   }
 
-  // obj in, tree of nodes out
-  var depth = 0;
-  var breadth = 0;
-  function objToTree(obj, parent, names) {
-    var nodes = [];
-    Object.keys(obj).forEach(function (name) {
-      var n;
-      if (!(n = names[name])) {
-        names[name] = n = {
-          name: name,
-          parent: parent,
-          children: [],
-          svg: RECT,
-          size: SIZE,
-        };
-        nodes.push(n);
-      }
-      if (!obj[name].hasOwnProperty("score")) {
-        n.children = n.children.concat(objToTree(obj[name], name));
-      } else {
-        n.children = n.children.concat({
-          parent: name,
-          name: String(obj[name].name),
-          score: obj[name].score,
-          size: SIZE,
-          svg: obj[name].svg,
-          src: obj[name].src,
-          item: obj[name].item,
-        });
-      }
-      breadth++;
-    });
-    return nodes;
-  }
-
   function escapeStr(str) {
     return String(str)
       .replace(/\\/g, "\\\\")
