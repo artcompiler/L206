@@ -231,9 +231,10 @@ let translate = (function() {
     var result = "";
     for (i = 0, len = str.length; i < len; i++) {
       code = str.charCodeAt(i);
-      if (!(code > 47 && code < 58) && // numeric (0-9)
-          !(code > 64 && code < 91) && // upper alpha (A-Z)
-          !(code > 96 && code < 123)) { // lower alpha (a-z)
+      if (!(code > 47 && code < 58) &&  // numeric (0-9)
+          !(code > 64 && code < 91) &&  // upper alpha (A-Z)
+          !(code > 96 && code < 123) && // lower alpha (a-z)
+          code !== 45 && code !== 95) { // '-', '_'
         return result;
       }
       result += str.charAt(i);
@@ -266,7 +267,6 @@ let translate = (function() {
   }
 
   function getNode(root, name) {
-//    console.log("getNode() name=" + name + " root=" + JSON.stringify(root, null, 2));
     var node;
     if (!(node = root[name])) {
       node = root[name] = {
@@ -289,7 +289,7 @@ let translate = (function() {
       node = getNode(node, name);
       str = str.substring(part.length);
     }
-    return;
+    return node;
   }
 
   var START   = 1;
@@ -501,8 +501,7 @@ let translate = (function() {
               var method = srcObj.method;
               var value = srcObj.arg2 ? srcObj.arg1 : null;
               var response = srcObj.arg2 ? srcObj.arg2 : srcObj.arg1;
-              parseIndex(indexStr, src, root);
-/*
+              var node = parseIndex(indexStr, src, root);
               var objectCode = val.obj;
               if (!objectCode) {
                 return;
@@ -512,46 +511,38 @@ let translate = (function() {
               var valueSVG = objObj.valueSVG;
               var responseSVG = objObj.responseSVG;
               var score = objObj.score;
-              var n;
-              if (!(n = names[response])) {
-                // Add a node to the pool.
-                names[response] = n = {
-                  name: response,
-                  svg: unescapeXML(responseSVG ? responseSVG : RECT),
-                  parent: "root",
-                  children: [],
-                  names: {},
-                  size: SIZE,
+              var n, o;
+              if (!(n = node[response])) {
+                // If no node for response yet, then add one.
+                node[response] = n = {
+                  _: {
+                    image: responseSVG ? unescapeXML(responseSVG) : undefined,
+                  }
                 };
-                node.children.push(n);
+              }
+              if (!(o = n[method])) {
+                // If no node for method yet, then add one.
+                n[method] = o = {
+                };
               }
               if (value) {
-                var o = {
+                // If there is a value, then add it as a child of the method node.
+                o[value] = {
+                  _: {
+                    value: score > 0 ? 1.1 : 0.9,
+                    image: valueSVG ? unescapeXML(valueSVG) : undefined,
+                    title: "/item?id=" + item,
+                  }
                 };
-                o[method] = {
-                  name: value,
-                  score: score,
-                  size: SIZE,
-                  svg: unescapeXML(valueSVG ? valueSVG : RECT),
-                  src: src,
-                  item: item,
-                };
-                n.children = n.children.concat(objToTree(o, response, n.names));
               } else {
-                n.children = n.children.concat({
-                  name: method,
-                  parent: response,
-                  score: score,
-                  size: SIZE,
-                  svg: RECT,
-                  src: src,
-                  item: item,
-                });
+                // If there is no value, the add meta data to it now.
+                o._ = {
+                  value: score > 0 ? 1.1 : 0.9,
+                  title: "/item?id=" + item,
+                };
               }
-              breadth++;
-*/
             } catch (e) {
-              console.log(e.stack);
+              //console.log(e.stack);
             }
           });
           resume(err, root);
