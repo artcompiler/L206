@@ -257,8 +257,8 @@ let translate = (function() {
         name: name,
         children: [],
         names: {},
-        size: SIZE,
-        svg: RECT,
+//        size: SIZE,
+//        svg: RECT,
       };
       parent.push(node);
     }
@@ -268,11 +268,10 @@ let translate = (function() {
   function parseItemName(rootName, str, pool, parent) {
     // #CCSS.Math.Content.8.EE.C.7
     // A pool is an hash table, aka object.
-    rootName = getRootName(rootName);
     var start = str.indexOf(rootName);
     str = str.substring(start);
     var name = rootName;
-    var node = getNodeFromPool(name, pool, parent);
+    var node = {}; getNodeFromPool(name, pool, parent);
     str = str.substring(rootName.length);
     while (str.charAt(0) === ".") {
       str = str.substring(1);
@@ -446,8 +445,33 @@ let translate = (function() {
     return nodes;
   }
 
+  function escapeStr(str) {
+    return String(str)
+      .replace(/\\/g, "\\\\")
+      .replace(/{/g, "\{")
+      .replace(/}/g, "\}")
+  }
+
+  function stripNewlines(str) {
+    return String(str)
+      .replace(/\n/g, " ")
+  }
+
+  function unescapeXML(str) {
+    return String(str)
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&quot;/g, "'");
+  }
+
+  var SIZE = 100;
+  var RECT = "<svg xmlns='http://www.w3.org/2000/svg'><g><rect width='0px' height='0px'/></g></svg>";
+  var ITEM_COUNT = 20;
+
   function data(node, options, resume) {
     visit(node.elts[0], options, function (err, val) {
+      var source = val.value;
       get("/pieces/L106?q=" + val.value, null, function (err, val) {
 //        console.log("get() val=" + JSON.stringify(val, null, 2));
         var list = [];
@@ -459,26 +483,16 @@ let translate = (function() {
           var data = [];
           var children = [];
           var names = {};
+          var root = {};
           obj.forEach(function (val) {
-//            var val = JSON.parse(val.obj);
-            if (obj.language !== "L106" || obj.label !== "show") {
-              console.log("val=" + JSON.stringify(val, null, 2));
-              return;
-            }
-            console.log("data() obj.response=" + val.response);
-            data.push({
-              response: val.response,
-              value: val.value,
-              score: val.score,
-            });
-            var item = val.id;
-            var src = val.src;
-            var srcObj = parseSrc(val.src);
-            var method = srcObj.method;
-            var value = srcObj.arg2 ? srcObj.arg1 : null;
-            var response = srcObj.arg2 ? srcObj.arg2 : srcObj.arg1;
-            var node = parseItemName(source, src, names, children);
             try {
+              var item = val.id;
+              var src = val.src;
+              var srcObj = parseSrc(val.src);
+              var method = srcObj.method;
+              var value = srcObj.arg2 ? srcObj.arg1 : null;
+              var response = srcObj.arg2 ? srcObj.arg2 : srcObj.arg1;
+              var node = parseItemName(source, src, names, children);
               var objectCode = val.obj;
               if (!objectCode) {
                 return;
@@ -526,9 +540,10 @@ let translate = (function() {
               }
               breadth++;
             } catch (e) {
+              console.log(e.stack);
             }
           });
-          resume(err, data);
+          resume(err, children);
         });
       });
     });
