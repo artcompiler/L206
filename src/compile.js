@@ -460,11 +460,12 @@ let translate = (function() {
           var children = [];
           var names = {};
           obj.forEach(function (val) {
-            if (val.language !== "L106" || val.label !== "show") {
-//              console.log("val=" + JSON.stringify(val, null, 2));
+//            var val = JSON.parse(val.obj);
+            if (obj.language !== "L106" || obj.label !== "show") {
+              console.log("val=" + JSON.stringify(val, null, 2));
               return;
             }
-            console.log("data() val.response=" + val.response);
+            console.log("data() obj.response=" + val.response);
             data.push({
               response: val.response,
               value: val.value,
