@@ -177,14 +177,19 @@ let translate = (function() {
       });
     });
   }
-  function getItems(list, resume) {
+  function getItems(list, sourceOnly, resume) {
+    var path;
     // Handle legacy case
-    var path = "/items";
+    if (sourceOnly) {
+      path = "/items/src";
+    } else { 
+      path = "/items";
+    }
     var encodedData = JSON.stringify(list);
     var options = {
       host: "www.graffiticode.com",
       port: "80",
-      path: "/items",
+      path: path,
       method: 'GET',
       headers: {
         'Content-Type': 'utf8',
@@ -198,7 +203,6 @@ let translate = (function() {
         data += chunk;
       });
       res.on('end', function () {
-//        console.log("getItems() data=" + data);
         resume([], data);
       });
     });
@@ -210,16 +214,16 @@ let translate = (function() {
     });
   }
   var ITEM_COUNT = 1000;
-  function loadItems(list, data, resume) {
+  function loadItems(list, sourceOnly, data, resume) {
     var sublist = list.slice(0, ITEM_COUNT);
-    getItems(list, function (err, str) {
+    getItems(list, sourceOnly, function (err, str) {
       var obj = JSON.parse(str);
       for (var i = 0; i < obj.length; i++) {
         data.push(obj[i]);
       }
       list = list.slice(ITEM_COUNT);
       if (list.length > 0) {
-        loadItems(list, data, resume);
+        loadItems(list, sourceOnly, data, resume);
       } else {
         resume([], data);
       }
@@ -458,7 +462,7 @@ let translate = (function() {
         for (var i = 0; i < val.length; i++) {
           list[i] = val[i].id;
         }
-        loadItems(list, [], function (err, obj) {
+        loadItems(list, false, [], function (err, obj) {
           var c, i = 0;
           var data = [];
           var children = [];
@@ -532,7 +536,7 @@ let translate = (function() {
         for (var i = 0; i < val.length; i++) {
           list[i] = val[i].id;
         }
-        loadItems(list, [], function (err, obj) {
+        loadItems(list, true, [], function (err, obj) {
           var c, i = 0;
           var data = [];
           var children = [];
