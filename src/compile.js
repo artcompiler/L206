@@ -496,14 +496,16 @@ let translate = (function() {
                   _: {
                     value: score > 0 ? 1.1 : 0.9,
                     image: valueSVG ? unescapeXML(valueSVG) : undefined,
-                    title: "/item?id=" + item,
+                    title: src,
+                    link: "/item?id=" + item,
                   }
                 };
               } else {
                 // If there is no value, the add meta data to it now.
                 o._ = {
                   value: score > 0 ? 1.1 : 0.9,
-                  title: "/item?id=" + item,
+                  title: src,
+                  link: "/item?id=" + item,
                 };
               }
             } catch (e) {
