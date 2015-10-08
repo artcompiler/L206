@@ -275,7 +275,9 @@ let translate = (function() {
           title: name,
         },
       };
-    };
+    } else {
+      node._.value++;
+    }
     return node;
   }
 
@@ -290,7 +292,7 @@ let translate = (function() {
       str = str.substring(1);
       var part = getAlphaNumericPrefix(str);
       name += "." + part;
-      node = getNode(node, name);
+      node = getNode(node, part);
       str = str.substring(part.length);
     }
     return node;
