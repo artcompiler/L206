@@ -12,4 +12,5 @@ exports.globalLexicon = {
     "false" : { "tk": 0x14, "cls": "val", "length": 0 },
     // functions
     "data" : { "tk": 0x01, "name": "DATA", "cls": "function", "length": 1, "arity": 1 },
+    "index" : { "tk": 0x01, "name": "INDEX", "cls": "function", "length": 1, "arity": 1 },
 }

@@ -270,6 +270,10 @@ let translate = (function() {
     var node;
     if (!(node = root[name])) {
       node = root[name] = {
+        _: {
+          value: 1,
+          title: name,
+        },
       };
     };
     return node;
@@ -517,6 +521,82 @@ let translate = (function() {
       });
     });
   }
+  function index(node, options, resume) {
+    visit(node.elts[0], options, function (err, val) {
+      var indexStr = val.value;
+      get("/pieces/L106?q=" + val.value, null, function (err, val) {
+//        console.log("get() val=" + JSON.stringify(val, null, 2));
+        var list = [];
+        for (var i = 0; i < val.length; i++) {
+          list[i] = val[i].id;
+        }
+        loadItems(list, [], function (err, obj) {
+          var c, i = 0;
+          var data = [];
+          var children = [];
+          var names = {};
+          var root = {};
+          obj.forEach(function (val) {
+            try {
+              var item = val.id;
+              var src = val.src;
+              var srcObj = parseSrc(val.src);
+              var method = srcObj.method;
+              var value = srcObj.arg2 ? srcObj.arg1 : null;
+              var response = srcObj.arg2 ? srcObj.arg2 : srcObj.arg1;
+              var node = parseIndex(indexStr, src, root);
+/*
+              var objectCode = val.obj;
+              if (!objectCode) {
+                return;
+              }
+              var objStr = escapeStr(unescapeXML(objectCode));
+              var objObj = JSON.parse(objStr);
+              var valueSVG = objObj.valueSVG;
+              var responseSVG = objObj.responseSVG;
+              var score = objObj.score;
+              var n, o;
+              if (!(n = node[response])) {
+                // If no node for response yet, then add one.
+                node[response] = n = {
+                  _: {
+                    image: responseSVG ? unescapeXML(responseSVG) : undefined,
+                  }
+                };
+              }
+              if (!(o = n[method])) {
+                // If no node for method yet, then add one.
+                n[method] = o = {
+                };
+              }
+              if (value) {
+                // If there is a value, then add it as a child of the method node.
+                o[value] = {
+                  _: {
+                    value: score > 0 ? 1.1 : 0.9,
+                    image: valueSVG ? unescapeXML(valueSVG) : undefined,
+                    title: src,
+                    link: "/item?id=" + item,
+                  }
+                };
+              } else {
+                // If there is no value, the add meta data to it now.
+                o._ = {
+                  value: score > 0 ? 1.1 : 0.9,
+                  title: src,
+                  link: "/item?id=" + item,
+                };
+              }
+*/
+            } catch (e) {
+              //console.log(e.stack);
+            }
+          });
+          resume(err, root);
+        });
+      });
+    });
+  }
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
@@ -530,6 +610,7 @@ let translate = (function() {
     "ADD" : add,
     "STYLE" : style,
     "DATA": data,
+    "INDEX": index,
   }
   return translate;
 })();
