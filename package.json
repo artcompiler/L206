@@ -1,5 +1,5 @@
 {
-  "name": "L110",
+  "name": "L205",
   "version": "0.0.0",
   "description": "Compiler as a service.",
   "author": "Art Compiler LLC",
@@ -9,8 +9,7 @@
   },
   "dependencies": {
     "express": "^4.0.x",
-    "domready": "^1.0.8",
-    "topojson": "latest"
+    "domready": "^1.0.8"
   },
   "engines": {
     "npm": "latest",
@@ -18,10 +17,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/artcompiler/L110"
+    "url": "https://github.com/artcompiler/L205"
   },
   "devDependencies": {
-    "babel": "^5.8.21",
+    "babel": "latest",
     "browserify": "latest",
     "babelify": "latest"
   }

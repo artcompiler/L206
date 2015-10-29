@@ -1,17 +1,17 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil; tab-width: 2 -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /*
-   L110 compiler service.
+   L205 compiler service.
 */
 var fs = require('fs');
 var http = require('http');
 var express = require('express')
 var app = express();
-app.set('port', (process.env.PORT || 5110));
+app.set('port', (process.env.PORT || 5205));
 app.set('views', __dirname);
 app.use(express.static(__dirname + '/pub'));
 app.get('/', function(req, res) {
-  res.send("Hello, L110!");
+  res.send("Hello, L205!");
 });
 
 var compiler = require("./lib/compile.js");
@@ -67,15 +67,6 @@ app.get('/view/:id', function(req, res) {
         res.send(html);
       }
     });
-/*
-    if (err && err.length) {
-      res.send({
-        error: err,
-      });
-    } else {
-      res.send(obj);
-    }
-*/
   });
   function item(id, resume) {
     var options = {
@@ -100,6 +91,7 @@ app.get('/view/:id', function(req, res) {
   }
 });
 app.listen(app.get('port'), function() {
+  global.port = app.get('port');
   console.log("Node app is running at localhost:" + app.get('port'))
 });
 process.on('uncaughtException', function(err) {
