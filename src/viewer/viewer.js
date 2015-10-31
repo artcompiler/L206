@@ -2,7 +2,6 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 import {assert, message, messages, reserveCodeRange} from "./assert";
-
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
     var data = JSON.parse(obj).data;
