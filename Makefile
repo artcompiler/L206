@@ -15,6 +15,5 @@ pub/%.js: lib/%.js
 	browserify lib/viewer.js --outfile pub/viewer.js
 
 run:
-#	browserify lib/viewer.js -t babelify --outfile pub/viewer.js
 	npm start
 
