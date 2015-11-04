@@ -23,4 +23,21 @@ window.exports.viewer = (function () {
     capture: capture,
   };
 })();
+var ReactExample = React.createClass({
+  propTypes: {
+    lineNumbers: React.PropTypes.bool,
+  },
+  getDefaultProps: function() {
+    return {
+      lineNumbers: false,
+    };
+  },
+  render: function() {
+    return (
+      <div style={this.props.style} className={this.props.className}>
+        Hello, world!
+      </div>
+    );
+  }
+});
 

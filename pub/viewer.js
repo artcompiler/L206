@@ -171,5 +171,22 @@ window.exports.viewer = (function () {
     update: update,
     capture: capture };
 })();
+var ReactExample = React.createClass({
+  displayName: "ReactExample",
+
+  propTypes: {
+    lineNumbers: React.PropTypes.bool },
+  getDefaultProps: function getDefaultProps() {
+    return {
+      lineNumbers: false };
+  },
+  render: function render() {
+    return React.createElement(
+      "div",
+      { style: this.props.style, className: this.props.className },
+      "Hello, world!"
+    );
+  }
+});
 
 },{"./assert.js":1}]},{},[2]);
