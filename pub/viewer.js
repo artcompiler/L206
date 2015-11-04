@@ -189,4 +189,4 @@ var ReactExample = React.createClass({
   }
 });
 
-},{"./assert.js":1}]},{},[2]);
+},{"./assert.js":1}]},{},[1,2]);

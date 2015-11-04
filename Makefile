@@ -12,7 +12,7 @@ lib/%.js: src/%.js
 
 pub/%.js: lib/%.js
 	mkdir -p $(@D)
-	browserify lib/viewer.js --outfile pub/viewer.js
+	browserify lib/assert.js lib/viewer.js > pub/viewer.js
 
 run:
 	npm start
