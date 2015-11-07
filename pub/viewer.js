@@ -16,10 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-"use strict";
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+"use strict"
 /*
   ASSERTS AND MESSAGES
 
@@ -81,6 +78,10 @@ Object.defineProperty(exports, "__esModule", {
 
 */
 
+;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
 var location = "";
 var messages = {};
 var reservedCodes = [];
@@ -145,12 +146,9 @@ exports.messages = messages;
 exports.reserveCodeRange = reserveCodeRange;
 
 },{}],2:[function(require,module,exports){
-/* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil; tab-width: 2 -*- */
-/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
-/* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 "use strict";
 
-var _assertJs = require("./assert.js");
+var _assert = require("./assert.js");
 
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
@@ -169,16 +167,20 @@ window.exports.viewer = (function () {
   function capture(el) {}
   return {
     update: update,
-    capture: capture };
-})();
-var ReactExample = React.createClass({
-  displayName: "ReactExample",
+    capture: capture
+  };
+})(); /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil; tab-width: 2 -*- */
+/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
+/* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 
+var ReactExample = React.createClass({
   propTypes: {
-    lineNumbers: React.PropTypes.bool },
+    lineNumbers: React.PropTypes.bool
+  },
   getDefaultProps: function getDefaultProps() {
     return {
-      lineNumbers: false };
+      lineNumbers: false
+    };
   },
   render: function render() {
     return React.createElement(
