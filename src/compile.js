@@ -174,7 +174,6 @@ let translate = (function() {
   };
   function play(node, options, resume) {
     resume([], [true]);
-    return;
   }
   let table = {
     "PROG" : program,
