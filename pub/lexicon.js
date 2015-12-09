@@ -1,6 +1,6 @@
 exports.globalLexicon = {
     // keywords
-    "let" : { "tk": 0x12, "cls": "keyword" },
+    /*"let" : { "tk": 0x12, "cls": "keyword" },
     "if" : { "tk": 0x05, "cls": "keyword" },
     "then" : { "tk": 0x06, "cls": "keyword" },
     "else" : { "tk": 0x07, "cls": "keyword" },
@@ -10,7 +10,6 @@ exports.globalLexicon = {
     // booleans
     "true" : { "tk": 0x14, "cls": "val", "length": 0 },
     "false" : { "tk": 0x14, "cls": "val", "length": 0 },
-    // functions
-    "data" : { "tk": 0x01, "name": "DATA", "cls": "function", "length": 1, "arity": 1 },
-    "index" : { "tk": 0x01, "name": "INDEX", "cls": "function", "length": 1, "arity": 1 },
+    // functions*/
+    "play" : { "tk": 0x01, "name": "PLAY", "cls": "function", "length": 0, "arity": 0 },
 }

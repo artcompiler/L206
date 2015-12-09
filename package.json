@@ -1,5 +1,5 @@
 {
-  "name": "L205",
+  "name": "L206",
   "version": "0.0.0",
   "description": "Compiler as a service.",
   "author": "Art Compiler LLC",
@@ -9,7 +9,9 @@
   },
   "dependencies": {
     "express": "^4.0.x",
-    "domready": "^1.0.8"
+    "domready": "^1.0.8",
+    "react": "^0.14.2",
+    "react-dom": "^0.14.2"
   },
   "engines": {
     "npm": "latest",
