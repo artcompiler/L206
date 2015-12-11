@@ -4,6 +4,7 @@
 import {assert, message, messages, reserveCodeRange} from "./assert.js";
 import {Grid, Tile} from "./grid.js";
 import * as React from "react";
+import * as D3Test from "./d3Test";
 import * as ReactDOM from "react-dom";
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
@@ -237,7 +238,6 @@ window.exports.viewer = (function () {
           //use D3 to draw the background here
           //var element = d3.select(ReactDOM.findDOMNode(this));
           window.addEventListener("keydown", this.handleMove);
-          console.log(this.state.grid);
         },
 
         componentWillUnmount: function () {
@@ -250,7 +250,6 @@ window.exports.viewer = (function () {
           }
           var element = ReactDOM.findDOMNode(this);
           //use D3 to update the foreground here
-          console.log(this.state.grid);
         },
 
         render: function () {
@@ -276,8 +275,18 @@ window.exports.viewer = (function () {
       });
 
       var ScoresContainer = React.createClass({
+        getInitialState: function () {
+          return {score: 0};
+        },
+
+        componentWillUpdate: function (nextProps) {
+          var difference = this.props.score - nextProps.score;
+          if (difference > 0){
+            //add a function for the score addition transition
+          }
+        },
+
         render: function () {
-          //do the thing with the addition thing here
           return (
             <div className='scores-container'>
               <div className='score-container'>{this.props.score}</div>
@@ -304,8 +313,28 @@ window.exports.viewer = (function () {
       });
 
       var TileContainer = React.createClass({
+        componentDidMount: function () {
+          d3.select(ReactDOM.findDOMNode(this)).append('svg')
+            .attr('width', 500+'px')
+            .attr('height', 500+'px')
+            .style('cursor', 'default');
+        },
+
+        componentDidUpdate: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this)).select('svg');
+          element.selectAll('g')
+            .remove();
+          //update based on the new grid
+          this.props.grid.cells.forEach(function (column) {
+            column.forEach(function (cell) {
+              if(cell) {
+                D3Test.addTile(element, cell);
+              }
+            });
+          });
+        },
+
         render: function () {
-          //decidedly the most involved, but it shouldn't be difficult to make the tiles appear properly.
           return (
             <div className='tile-container'>
             </div>
