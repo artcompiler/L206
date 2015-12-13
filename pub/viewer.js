@@ -208,6 +208,7 @@ var colorMap = {
   1024: '#edc53f',
   2048: '#edc22e'
 };
+
 //width and height of 107px
 //border radius 3 pixels
 //font size 55px, bold, center
@@ -219,8 +220,11 @@ var addTile = function addTile(svg, tile) {
   //if >8 use #776e65 else use #f9f6f2
   var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
   t.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
-
-  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + 66 / 4 + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 55 + 'px').style('font-weight', 'bold').text(tile.value);
+  //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
+  //adds 12, adds 11, adds 9, adds 7
+  //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
+  var fontsize = 55 - 10 * (tile.value.toString().length - 2);
+  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
@@ -330,6 +334,23 @@ Grid.prototype.withinBounds = function (position) {
   return position.x >= 0 && position.x < this.size && position.y >= 0 && position.y < this.size;
 };
 
+Grid.prototype.serialize = function () {
+  var cellState = [];
+
+  for (var x = 0; x < this.size; x++) {
+    var row = cellState[x] = [];
+
+    for (var y = 0; y < this.size; y++) {
+      row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
+    }
+  }
+
+  return {
+    size: this.size,
+    cells: cellState
+  };
+};
+
 function Tile(position, value) {
   this.x = position.x;
   this.y = position.y;
@@ -397,10 +418,32 @@ window.exports.viewer = (function () {
           };
         },
 
+        save: function save(st) {
+          window.localStorage.setItem("gameState", JSON.stringify(st));
+          var bs = window.localStorage.getItem("bestScore");
+          if (!bs || st.score > +bs) {
+            window.localStorage.setItem("bestScore", st.score);
+          }
+        },
+
+        clearGame: function clearGame() {
+          window.localStorage.removeItem("gameState");
+        },
+
+        gameState: function gameState() {
+          var stateJSON = window.localStorage.getItem("gameState");
+          return stateJSON ? JSON.parse(stateJSON) : null;
+        },
+
+        bestScore: function bestScore() {
+          return window.localStorage.getItem("bestScore") || 0;
+        },
+
         restart: function restart() {
           this.replaceState(function (previousState, currentProps) {
-            return { best: this.state.best };
+            return {};
           });
+          this.clearGame();
           //clear game won/lost message
           this.setup();
         },
@@ -419,18 +462,29 @@ window.exports.viewer = (function () {
         },
 
         setup: function setup() {
-          //put a check for previous and saved state here
-          //if that check finds nothing,
-          this.setState(function (previousState, currentProps) {
-            return {
-              grid: new _grid.Grid(currentProps.size),
-              score: 0,
-              over: false,
-              won: false,
-              keepPlaying: false
-            };
-          });
-          this.addStartTiles();
+          var prevState = this.gameState();
+          if (prevState && prevState.grid) {
+            this.setState(function (previousState, currentProps) {
+              return {
+                grid: new _grid.Grid(prevState.grid.size, prevState.grid.cells),
+                score: prevState.score,
+                over: prevState.over,
+                won: prevState.won,
+                keepPlaying: prevState.keepPlaying
+              };
+            });
+          } else {
+            this.setState(function (previousState, currentProps) {
+              return {
+                grid: new _grid.Grid(currentProps.size),
+                score: 0,
+                over: false,
+                won: false,
+                keepPlaying: false
+              };
+            });
+            this.addStartTiles();
+          }
         },
 
         addStartTiles: function addStartTiles() {
@@ -621,6 +675,13 @@ window.exports.viewer = (function () {
           //use D3 to draw the background here
           //var element = d3.select(ReactDOM.findDOMNode(this));
           window.addEventListener("keydown", this.handleMove);
+          this.save({
+            grid: this.state.grid.serialize(),
+            score: this.state.score,
+            over: this.state.over,
+            won: this.state.won,
+            keepPlaying: this.state.keepPlaying
+          });
         },
 
         componentWillUnmount: function componentWillUnmount() {
@@ -628,11 +689,19 @@ window.exports.viewer = (function () {
         },
 
         componentDidUpdate: function componentDidUpdate() {
-          if (this.state.best < this.state.score) {
-            this.setState({ best: this.state.score });
-          }
           var element = ReactDOM.findDOMNode(this);
           //use D3 to update the foreground here
+          if (this.state.over) {
+            this.clearGame();
+          } else {
+            this.save({
+              grid: this.state.grid.serialize(),
+              score: this.state.score,
+              over: this.state.over,
+              won: this.state.won,
+              keepPlaying: this.state.keepPlaying
+            });
+          }
         },
 
         render: function render() {
@@ -648,7 +717,7 @@ window.exports.viewer = (function () {
                 { className: "title" },
                 "2048"
               ),
-              React.createElement(ScoresContainer, { score: this.state.score, best: this.state.best })
+              React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore() })
             ),
             React.createElement(
               "div",
@@ -710,13 +779,6 @@ window.exports.viewer = (function () {
       var GameMessage = React.createClass({
         displayName: "GameMessage",
 
-        /*restart: function () {
-          var element = d3.select(ReactDOM.findDOMNode(this));
-          element.selectAll('g')
-            .remove();
-          this.props.restart();
-        },*/
-
         componentDidUpdate: function componentDidUpdate() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           var ac = this;
@@ -735,11 +797,11 @@ window.exports.viewer = (function () {
               g.append('rect').attr('x', 140 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
                 return ac.props.restart();
               });
-              g.append('text').attr('x', 90 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+              g.append('text').attr('x', 190 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
                 return ac.props.restart();
               });
               //make the keep playing button
-              g.append('rect').attr('x', 260 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+              g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 120 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
                 return ac.props.keepPlaying();
               });
               g.append('text').attr('x', 310 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep playing').on("click", function (d) {
@@ -758,6 +820,21 @@ window.exports.viewer = (function () {
 
       var TileContainer = React.createClass({
         displayName: "TileContainer",
+
+        componentDidMount: function componentDidMount() {
+          if (this.props.grid) {
+            var element = d3.select(ReactDOM.findDOMNode(this));
+            element.selectAll('g').remove();
+            //update based on the new grid
+            this.props.grid.cells.forEach(function (column) {
+              column.forEach(function (cell) {
+                if (cell) {
+                  D3Test.addTile(element, cell);
+                }
+              });
+            });
+          }
+        },
 
         componentDidUpdate: function componentDidUpdate() {
           if (this.props.grid) {
@@ -780,57 +857,6 @@ window.exports.viewer = (function () {
       });
 
       ReactDOM.render(React.createElement(Game, null), document.getElementById("graff-view"));
-      /*var ReactExample = React.createClass({
-        componentDidMount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          d3Test.create(element, {
-            width: '100%',
-            height: '30px'
-          });
-          this.refs.testing.testing();
-        },
-        componentDidUpdate: function () {
-          var element = ReactDOM.findDOMNode(this);
-          //run d3 update functions here
-        },
-        componentWillUnmount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          //run d3 destruction functions here
-        },
-        handleClick: function() {
-          console.log('Click test successful');
-        },
-        render: function() {
-           return (
-            <div className="D3test">
-              <ReactTest clt={this.handleClick} ref={'testing'}/>
-            </div>
-          );
-        }
-      });
-      var ReactTest = React.createClass({
-        componentDidMount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          d3Test.create(element, {
-            width: '30px',
-            height: '60px'
-          });
-          this.props.clt();
-        },
-         testing: function () {
-          console.log("Test successful");
-        },
-         render: function () {
-          return (
-            <div className = "Childtest"></div>
-          );
-        }
-      });
-      ReactDOM.render(
-        <ReactExample/>,
-        document.getElementById("graff-view")
-      );*/
-      //react stuff ends here
     }
     return;
   }

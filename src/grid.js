@@ -93,6 +93,23 @@ Grid.prototype.withinBounds = function (position) {
          position.y >= 0 && position.y < this.size;
 };
 
+Grid.prototype.serialize = function () {
+  var cellState = [];
+
+  for (var x = 0; x < this.size; x++) {
+    var row = cellState[x] = [];
+
+    for (var y = 0; y < this.size; y++) {
+      row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
+    }
+  }
+
+  return {
+    size: this.size,
+    cells: cellState
+  };
+};
+
 function Tile(position, value) {
   this.x                = position.x;
   this.y                = position.y;

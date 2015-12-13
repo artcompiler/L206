@@ -19,10 +19,32 @@ window.exports.viewer = (function () {
           };
         },
 
+        save: function (st) {
+          window.localStorage.setItem("gameState", JSON.stringify(st));
+          var bs = window.localStorage.getItem("bestScore");
+          if (!bs || st.score > +bs){
+            window.localStorage.setItem("bestScore", st.score);
+          }
+        },
+
+        clearGame: function () {
+          window.localStorage.removeItem("gameState");
+        },
+
+        gameState: function () {
+          var stateJSON = window.localStorage.getItem("gameState");
+          return stateJSON ? JSON.parse(stateJSON) : null;
+        },
+
+        bestScore: function () {
+          return window.localStorage.getItem("bestScore") || 0;
+        },
+
         restart: function () {
           this.replaceState(function(previousState, currentProps) {
-            return {best: this.state.best};
+            return {};
           });
+          this.clearGame();
           //clear game won/lost message
           this.setup();
         },
@@ -41,18 +63,29 @@ window.exports.viewer = (function () {
         },
 
         setup: function () {
-          //put a check for previous and saved state here
-          //if that check finds nothing,
-          this.setState(function(previousState, currentProps) {
-            return {
-              grid: new Grid(currentProps.size),
-              score: 0,
-              over: false,
-              won: false,
-              keepPlaying: false,
-            }
-          });
-          this.addStartTiles();
+          var prevState = this.gameState();
+          if(prevState && prevState.grid){
+            this.setState(function(previousState, currentProps) {
+              return {
+                grid: new Grid(prevState.grid.size, prevState.grid.cells),
+                score: prevState.score,
+                over: prevState.over,
+                won: prevState.won,
+                keepPlaying: prevState.keepPlaying
+              };
+            });
+          } else {
+            this.setState(function(previousState, currentProps) {
+              return {
+                grid: new Grid(currentProps.size),
+                score: 0,
+                over: false,
+                won: false,
+                keepPlaying: false,
+              };
+            });
+            this.addStartTiles();
+          }
         },
 
         addStartTiles: function () {
@@ -240,6 +273,15 @@ window.exports.viewer = (function () {
           //use D3 to draw the background here
           //var element = d3.select(ReactDOM.findDOMNode(this));
           window.addEventListener("keydown", this.handleMove);
+          this.save(
+            {
+              grid: this.state.grid.serialize(),
+              score: this.state.score,
+              over: this.state.over,
+              won: this.state.won,
+              keepPlaying: this.state.keepPlaying,
+            }
+          );
         },
 
         componentWillUnmount: function () {
@@ -247,11 +289,21 @@ window.exports.viewer = (function () {
         },
 
         componentDidUpdate: function () {
-          if (this.state.best < this.state.score){
-            this.setState({best: this.state.score});
-          }
           var element = ReactDOM.findDOMNode(this);
           //use D3 to update the foreground here
+          if(this.state.over){
+            this.clearGame();
+          } else {
+            this.save(
+              {
+                grid: this.state.grid.serialize(),
+                score: this.state.score,
+                over: this.state.over,
+                won: this.state.won,
+                keepPlaying: this.state.keepPlaying,
+              }
+            );
+          }
         },
 
         render: function () {
@@ -260,7 +312,7 @@ window.exports.viewer = (function () {
             <div className='gcontainer'>
               <div className='heading' display='block'>
                 <h1 className='title'>2048</h1>
-                <ScoresContainer score={this.state.score} best={this.state.best} />
+                <ScoresContainer score={this.state.score} best={this.bestScore()} />
               </div>
               <div className='above-game'>
                 <p className='game-intro'>Placeholder text!</p>
@@ -300,13 +352,6 @@ window.exports.viewer = (function () {
       });
 
       var GameMessage = React.createClass({
-        /*restart: function () {
-          var element = d3.select(ReactDOM.findDOMNode(this));
-          element.selectAll('g')
-            .remove();
-          this.props.restart();
-        },*/
-
         componentDidUpdate: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           var ac = this;
@@ -405,6 +450,22 @@ window.exports.viewer = (function () {
       });
 
       var TileContainer = React.createClass({
+        componentDidMount: function () {
+          if(this.props.grid){
+            var element = d3.select(ReactDOM.findDOMNode(this));
+            element.selectAll('g')
+              .remove();
+            //update based on the new grid
+            this.props.grid.cells.forEach(function (column) {
+              column.forEach(function (cell) {
+                if(cell) {
+                  D3Test.addTile(element, cell);
+                }
+              });
+            });
+          }
+        },
+
         componentDidUpdate: function () {
           if(this.props.grid){
             var element = d3.select(ReactDOM.findDOMNode(this));
@@ -433,60 +494,6 @@ window.exports.viewer = (function () {
         <Game/>,
         document.getElementById("graff-view")
       );
-      /*var ReactExample = React.createClass({
-        componentDidMount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          d3Test.create(element, {
-            width: '100%',
-            height: '30px'
-          });
-          this.refs.testing.testing();
-        },
-        componentDidUpdate: function () {
-          var element = ReactDOM.findDOMNode(this);
-          //run d3 update functions here
-        },
-        componentWillUnmount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          //run d3 destruction functions here
-        },
-        handleClick: function() {
-          console.log('Click test successful');
-        },
-        render: function() {
-
-          return (
-            <div className="D3test">
-              <ReactTest clt={this.handleClick} ref={'testing'}/>
-            </div>
-          );
-        }
-      });
-      var ReactTest = React.createClass({
-        componentDidMount: function () {
-          var element = ReactDOM.findDOMNode(this);
-          d3Test.create(element, {
-            width: '30px',
-            height: '60px'
-          });
-          this.props.clt();
-        },
-
-        testing: function () {
-          console.log("Test successful");
-        },
-
-        render: function () {
-          return (
-            <div className = "Childtest"></div>
-          );
-        }
-      });
-      ReactDOM.render(
-        <ReactExample/>,
-        document.getElementById("graff-view")
-      );*/
-      //react stuff ends here
     }
     return;
   }
