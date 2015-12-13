@@ -20,7 +20,9 @@ window.exports.viewer = (function () {
         },
 
         restart: function () {
-          this.replaceState({best: this.state.best});
+          this.replaceState(function(previousState, currentProps) {
+            return {best: this.state.best};
+          });
           //clear game won/lost message
           this.setup();
         },
@@ -264,11 +266,12 @@ window.exports.viewer = (function () {
                 <p className='game-intro'>Placeholder text!</p>
                 <a className='restart-button' onClick={this.restart}>New Game</a>
               </div>
-              <div className='game-container'>
-                <div className='grid-container'>
+              <svg width='500px' height='500px' cursor='default' className='game-container'>
+                <g className='grid-container'>
+                </g>
                 <TileContainer grid={this.state.grid} />
-                </div>
-              </div>
+                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
+              </svg>
             </div>
           );
         }
@@ -297,47 +300,131 @@ window.exports.viewer = (function () {
       });
 
       var GameMessage = React.createClass({
+        /*restart: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g')
+            .remove();
+          this.props.restart();
+        },*/
+
+        componentDidUpdate: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          var ac = this;
+          element.selectAll('g')
+            .remove();
+          if(this.props.terminated){
+            var g = element.append('g')
+            if(this.props.over){
+              g.append('rect')
+                .attr('x', 200+'px')
+                .attr('y', 250+'px')
+                .attr('rx', 3)
+                .attr('ry', 3)
+                .attr('width', 100+'px')
+                .attr('height', 50+'px')
+                .attr('fill', '#8f7a66')
+                .on("click", function (d){
+                  return ac.props.restart();
+                });
+              g.append('text')
+                .attr('x', 250+'px')
+                .attr('y', 250+22+'px')
+                .attr('fill', '#f9f6f2')
+                .attr('text-anchor', 'middle')
+                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
+                .style('font-size', 18+'px')
+                .style('font-weight', 'bold')
+                .style('cursor', 'default')
+                .text('Try again')
+                .on("click", function (d){
+                  return ac.props.restart();
+                });
+            } else if (this.props.won){
+              //make the restart button
+              g.append('rect')
+                .attr('x', 140+'px')
+                .attr('y', 250+'px')
+                .attr('rx', 3)
+                .attr('ry', 3)
+                .attr('width', 100+'px')
+                .attr('height', 50+'px')
+                .attr('fill', '#8f7a66')
+                .on("click", function (d){
+                  return ac.props.restart();
+                });
+              g.append('text')
+                .attr('x', 190+'px')
+                .attr('y', 250+22+'px')
+                .attr('fill', '#f9f6f2')
+                .attr('text-anchor', 'middle')
+                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
+                .style('font-size', 18+'px')
+                .style('font-weight', 'bold')
+                .style('cursor', 'default')
+                .text('Play again')
+                .on("click", function (d){
+                  return ac.props.restart();
+                });
+              //make the keep playing button
+              g.append('rect')
+                .attr('x', 250+'px')
+                .attr('y', 250+'px')
+                .attr('rx', 3)
+                .attr('ry', 3)
+                .attr('width', 120+'px')
+                .attr('height', 50+'px')
+                .attr('fill', '#8f7a66')
+                .on("click", function (d){
+                  return ac.props.keepPlaying();
+                });
+              g.append('text')
+                .attr('x', 310+'px')
+                .attr('y', 250+22+'px')
+                .attr('fill', '#f9f6f2')
+                .attr('text-anchor', 'middle')
+                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
+                .style('font-size', 18+'px')
+                .style('font-weight', 'bold')
+                .style('cursor', 'default')
+                .text('Keep playing')
+                .on("click", function (d){
+                  return ac.props.keepPlaying();
+                });
+            }
+          }
+        },
+
         render: function () {
           //just handle the logic of whether to display or not and some other things here
           //the buttons should link back to the respective functions on the container
           return (
-            <div className='game-message'>
-              <p></p>
-              <div className='lower'>
-                <a className='keep-playing-button'>Keep going</a>
-                <a className='retry-button'>Try again</a>
-              </div>
-            </div>
+            <g className='game-message'>
+            </g>
           );
         }
       });
 
       var TileContainer = React.createClass({
-        componentDidMount: function () {
-          d3.select(ReactDOM.findDOMNode(this)).append('svg')
-            .attr('width', 500+'px')
-            .attr('height', 500+'px')
-            .style('cursor', 'default');
-        },
-
         componentDidUpdate: function () {
-          var element = d3.select(ReactDOM.findDOMNode(this)).select('svg');
-          element.selectAll('g')
-            .remove();
-          //update based on the new grid
-          this.props.grid.cells.forEach(function (column) {
-            column.forEach(function (cell) {
-              if(cell) {
-                D3Test.addTile(element, cell);
-              }
+          if(this.props.grid){
+            var element = d3.select(ReactDOM.findDOMNode(this));
+            element.selectAll('g')
+              .remove();
+            //update based on the new grid
+            this.props.grid.cells.forEach(function (column) {
+              column.forEach(function (cell) {
+                if(cell) {
+                  D3Test.addTile(element, cell);
+                }
+              });
             });
-          });
+          }
         },
 
         render: function () {
           return (
-            <div className='tile-container'>
-            </div>
+            <g className='tile-container'>
+            </g>
           );
         }
       });

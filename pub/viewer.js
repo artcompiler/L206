@@ -217,10 +217,10 @@ var addTile = function addTile(svg, tile) {
   var position = /*tile.previousPosition ||*/{ x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
-  var t = svg.append('g');
-  t.append('rect').attr('x', position.x * 121 + 'px').attr('y', position.y * 121 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
+  var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
+  t.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
 
-  t.append('text').attr('x', position.x * 121 + 107 / 2 + 'px').attr('y', position.y * 121 + 107 / 2 + 66 / 4 + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 55 + 'px').style('font-weight', 'bold').text(tile.value);
+  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + 66 / 4 + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 55 + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
@@ -398,7 +398,9 @@ window.exports.viewer = (function () {
         },
 
         restart: function restart() {
-          this.replaceState({ best: this.state.best });
+          this.replaceState(function (previousState, currentProps) {
+            return { best: this.state.best };
+          });
           //clear game won/lost message
           this.setup();
         },
@@ -663,13 +665,11 @@ window.exports.viewer = (function () {
               )
             ),
             React.createElement(
-              "div",
-              { className: "game-container" },
-              React.createElement(
-                "div",
-                { className: "grid-container" },
-                React.createElement(TileContainer, { grid: this.state.grid })
-              )
+              "svg",
+              { width: "500px", height: "500px", cursor: "default", className: "game-container" },
+              React.createElement("g", { className: "grid-container" }),
+              React.createElement(TileContainer, { grid: this.state.grid }),
+              React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated() })
             )
           );
         }
@@ -710,53 +710,72 @@ window.exports.viewer = (function () {
       var GameMessage = React.createClass({
         displayName: "GameMessage",
 
+        /*restart: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g')
+            .remove();
+          this.props.restart();
+        },*/
+
+        componentDidUpdate: function componentDidUpdate() {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          var ac = this;
+          element.selectAll('g').remove();
+          if (this.props.terminated) {
+            var g = element.append('g');
+            if (this.props.over) {
+              g.append('rect').attr('x', 200 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+                return ac.props.restart();
+              });
+              g.append('text').attr('x', 250 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
+                return ac.props.restart();
+              });
+            } else if (this.props.won) {
+              //make the restart button
+              g.append('rect').attr('x', 140 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+                return ac.props.restart();
+              });
+              g.append('text').attr('x', 90 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+                return ac.props.restart();
+              });
+              //make the keep playing button
+              g.append('rect').attr('x', 260 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+                return ac.props.keepPlaying();
+              });
+              g.append('text').attr('x', 310 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep playing').on("click", function (d) {
+                return ac.props.keepPlaying();
+              });
+            }
+          }
+        },
+
         render: function render() {
           //just handle the logic of whether to display or not and some other things here
           //the buttons should link back to the respective functions on the container
-          return React.createElement(
-            "div",
-            { className: "game-message" },
-            React.createElement("p", null),
-            React.createElement(
-              "div",
-              { className: "lower" },
-              React.createElement(
-                "a",
-                { className: "keep-playing-button" },
-                "Keep going"
-              ),
-              React.createElement(
-                "a",
-                { className: "retry-button" },
-                "Try again"
-              )
-            )
-          );
+          return React.createElement("g", { className: "game-message" });
         }
       });
 
       var TileContainer = React.createClass({
         displayName: "TileContainer",
 
-        componentDidMount: function componentDidMount() {
-          d3.select(ReactDOM.findDOMNode(this)).append('svg').attr('width', 500 + 'px').attr('height', 500 + 'px').style('cursor', 'default');
-        },
-
         componentDidUpdate: function componentDidUpdate() {
-          var element = d3.select(ReactDOM.findDOMNode(this)).select('svg');
-          element.selectAll('g').remove();
-          //update based on the new grid
-          this.props.grid.cells.forEach(function (column) {
-            column.forEach(function (cell) {
-              if (cell) {
-                D3Test.addTile(element, cell);
-              }
+          if (this.props.grid) {
+            var element = d3.select(ReactDOM.findDOMNode(this));
+            element.selectAll('g').remove();
+            //update based on the new grid
+            this.props.grid.cells.forEach(function (column) {
+              column.forEach(function (cell) {
+                if (cell) {
+                  D3Test.addTile(element, cell);
+                }
+              });
             });
-          });
+          }
         },
 
         render: function render() {
-          return React.createElement("div", { className: "tile-container" });
+          return React.createElement("g", { className: "tile-container" });
         }
       });
 
