@@ -50,7 +50,9 @@ window.exports.viewer = (function () {
         },
 
         keepPlaying: function () {
-          this.setState({keepPlaying: true});
+          this.setState(function(previousState, currentProps) {
+           return {keepPlaying: true};
+          });
           //clear game won/lost message - setting keepplaying should do this already given update
         },
 
@@ -294,7 +296,7 @@ window.exports.viewer = (function () {
           //use D3 to update the foreground here
           if(this.state.over){
             this.clearGame();
-          } else {
+          } else if(this.state.grid) {
             this.save(
               {
                 grid: this.state.grid.serialize(),
@@ -361,6 +363,8 @@ window.exports.viewer = (function () {
           if(this.props.terminated){
             var g = element.append('g')
             if(this.props.over){
+              //rgba(238, 228, 218, 0.73) for background
+              //118 px x 40 px try again button
               g.append('rect')
                 .attr('x', 200+'px')
                 .attr('y', 250+'px')
