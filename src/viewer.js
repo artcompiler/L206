@@ -269,9 +269,9 @@ window.exports.viewer = (function () {
         },
 
         componentDidMount: function () {
-          var element = ReactDOM.findDOMNode(this);
+          var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          //var element = d3.select(ReactDOM.findDOMNode(this));
+          D3Test.drawGrid(element.select('svg').select('g.grid-container'));
           window.addEventListener("keydown", this.handleMove);
           this.save(
             {
@@ -282,6 +282,7 @@ window.exports.viewer = (function () {
               keepPlaying: this.state.keepPlaying,
             }
           );
+
         },
 
         componentWillUnmount: function () {

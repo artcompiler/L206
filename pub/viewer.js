@@ -155,46 +155,6 @@ Object.defineProperty(exports, "__esModule", {
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 
-var background = function background(el) {
-  var fieldwidth = 500; //px
-  var gridspacing = 15; //px
-  var gridrowcells = 4;
-  var tilesize = (fieldwidth - gridspacing * (gridrowcells + 1)) / gridrowcells;
-  var tileradius = 3;
-
-  var textcolor = '#776E65';
-  var brighttextcolor = '#f9f6f2'; //watch out for variables you don't actually need
-
-  var tilecolor = '#eee4da';
-  var tilegoldcolor = '#edc22e';
-
-  var gamemargintop = 40;
-  var gamebackground = '#bbada0';
-
-  var trans = 100; //ms
-
-  //start with container stuff, which includes just about everything from body and html so it can trickle down
-  var container = d3.select(el);
-  container.style('margin', 0).style('padding', 0).style('background', '#faf8ef').style('color', textcolor).style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', '18px').style('width', fieldwidth + 'px').style('margin', '0 auto');
-
-  container.select('h1.title').style('font-size', '80px').style('font-weight', 'bold').style('margin', 0).style('display', 'block').style('float', 'left');
-
-  container.select('.scores-container').style('float', 'right').style('text-align', 'right');
-  var height = 25;
-  container.select('.score-container').style('position', 'relative').style('display', 'inline-block').style('background', gamebackground).style('padding', '15px 25px').style('font-size', height + 'px').style('height', height + 'px').style('line-height', height + 22 + 'px').style('font-weight', 'bold').style('border-radius', '3px').style('color', 'white').style('margin-top', '8px').style('text-align', 'center').append; //PUT AFTER STUFF HERE
-
-  container.select('.score-addition').style('position', 'absolute').style('right', '30px').style('color', 'red').style('font-size', height + 'px').style('line-height', height + 'px').style('font-weight', 'bold').style('color', 'rgba(' + textcolor + ', .9)').style('z-index', 100);
-  //FIGURE OUT ANIMATION STUFF HERE
-
-  container.selectAll('p').style('margin-top', 0).style('margin-bottom', '10px').style('line-height', 1.65);
-
-  container.selectAll('a').style('color', textcolor).style('font-weight', 'bold').style('text-decoration', 'underline').style('cursor', 'pointer');
-
-  //FIGURE OUT WHAT MIXIN MEANS TOO
-
-  container.select('.game-container').style('margin-top', gamemargintop + 'px').style('position', 'relative').style('padding', gridspacing + 'px').style('cursor', 'default').style('touch-action', 'none').style('background', gamebackground).style('border-radius', tileradius * 2).style('width', fieldwidth + 'px').style('height', fieldwidth + 'px').style('box-sizing', 'border-box').select('.game-message').style('display', 'none').style('position', 'absolute').style('top', 0).style('right', 0).style('bottom', 0).style('left', 0).style('background', 'rgba(' + tilecolor + ', .5)').style('z-index', 100).style('text-align', 'center').selectAll('p').style('font-size', '60px').style('font-weight', 'bold').style('height', '60px').style('line-height', '60px').style('margin-top', '222px');
-};
-
 var colorMap = {
   2: '#eee4da',
   4: '#ede0c8',
@@ -209,16 +169,36 @@ var colorMap = {
   2048: '#edc22e'
 };
 
+//if undefined use #3c3a32
+var drawGrid = function drawGrid(svg) {
+  svg.append('rect').attr('rx', 6).attr('ry', 6).attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', '#bbada0');
+  for (var x = 0; x < 4; x++) {
+    for (var y = 0; y < 4; y++) {
+      svg.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('x', 14 + x * 121).attr('y', 14 + y * 121).attr('fill', 'rgba(238, 228, 218, 0.35)');
+    }
+  }
+};
+
 //width and height of 107px
 //border radius 3 pixels
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
-//if undefined use #3c3a32
 var addTile = function addTile(svg, tile) {
-  var position = /*tile.previousPosition ||*/{ x: tile.x, y: tile.y };
+  var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
-  var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
+  if (tile.previousPosition) {
+    var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
+    t.transition().duration(100).attr("transform", 'translate(' + (14 + tile.x * 121) + ',' + (14 + tile.y * 121) + ')');
+  } else {
+    if (tile.mergedFrom) {
+      tile.mergedFrom.forEach(function (merged) {
+        addTile(svg, merged);
+      });
+    }
+    var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121 + 107 / 2) + ',' + (14 + position.y * 121 + 107 / 2) + ') scale(0, 0)');
+    t.transition().duration(100).attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
+  }
   t.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
   //adds 12, adds 11, adds 9, adds 7
@@ -231,7 +211,7 @@ var addTile = function addTile(svg, tile) {
   //figure out what to do about merged tiles
 };
 
-exports.background = background;
+exports.drawGrid = drawGrid;
 exports.addTile = addTile;
 
 },{}],3:[function(require,module,exports){
@@ -671,9 +651,9 @@ window.exports.viewer = (function () {
         },
 
         componentDidMount: function componentDidMount() {
-          var element = ReactDOM.findDOMNode(this);
+          var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          //var element = d3.select(ReactDOM.findDOMNode(this));
+          D3Test.drawGrid(element.select('svg').select('g.grid-container'));
           window.addEventListener("keydown", this.handleMove);
           this.save({
             grid: this.state.grid.serialize(),
