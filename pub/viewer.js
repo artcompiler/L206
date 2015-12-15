@@ -211,8 +211,38 @@ var addTile = function addTile(svg, tile) {
   //figure out what to do about merged tiles
 };
 
+var drawScore = function drawScore(svg, score, best) {
+  var g = svg.append('g');
+  //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
+  //25 on each side, height 55
+  //font-size 13px, color #eee4da
+  var bestlength = best.toString().length * 15.5;
+  g.append('rect').attr('x', 450 - bestlength + 'px') //minus width
+  .attr('height', 55 + 'px').attr('width', 50 + bestlength + 'px').attr('fill', '#bbada0').attr('rx', 3).attr('ry', 3);
+  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
+  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 13 + 'px').text('BEST');
+  var scorelength = score.toString().length * 15.5;
+  g.append('rect').attr('x', 400 - bestlength - 10 - scorelength + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', 3).attr('ry', 3);
+  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
+  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 13 + 'px').text('SCORE');
+};
+
+var drawHeader = function drawHeader(svg, rest) {
+  svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
+
+  svg.append('rect').attr('y', 100 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+    return rest();
+  });
+
+  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
+    return rest();
+  });
+};
+
 exports.drawGrid = drawGrid;
 exports.addTile = addTile;
+exports.drawScore = drawScore;
+exports.drawHeader = drawHeader;
 
 },{}],3:[function(require,module,exports){
 "use strict";
@@ -655,7 +685,8 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg').select('g.grid-container'));
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'));
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save({
             grid: this.state.grid.serialize(),
@@ -687,31 +718,34 @@ window.exports.viewer = (function () {
         },
 
         render: function render() {
+          /*
+            <div className='gcontainer'>
+              <div className='heading' display='block'>
+                <h1 className='title'>2048</h1>
+                <ScoresContainer score={this.state.score} best={this.bestScore()} />
+              </div>
+              <div className='above-game'>
+                <p className='game-intro'>Placeholder text!</p>
+                <a className='restart-button' onClick={this.restart}>New Game</a>
+              </div>
+              <svg width='500px' height='500px' cursor='default' className='game-container'>
+                <g className='grid-container'>
+                </g>
+                <TileContainer grid={this.state.grid} />
+                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
+              </svg>
+            </div>
+          */
           return React.createElement(
             "div",
-            { className: "gcontainer" },
+            null,
             React.createElement(
-              "div",
-              { className: "heading", display: "block" },
+              "svg",
+              { width: "500px", className: "gcontainer" },
               React.createElement(
-                "h1",
-                { className: "title" },
-                "2048"
-              ),
-              React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore() })
-            ),
-            React.createElement(
-              "div",
-              { className: "above-game" },
-              React.createElement(
-                "p",
-                { className: "game-intro" },
-                "Placeholder text!"
-              ),
-              React.createElement(
-                "a",
-                { className: "restart-button", onClick: this.restart },
-                "New Game"
+                "g",
+                { className: "heading" },
+                React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore() })
               )
             ),
             React.createElement(
@@ -732,28 +766,28 @@ window.exports.viewer = (function () {
           return { score: 0 };
         },
 
-        componentWillUpdate: function componentWillUpdate(nextProps) {
-          var difference = this.props.score - nextProps.score;
+        componentDidUpdate: function componentDidUpdate(prevProps) {
+          var difference = prevProps.score - this.props.score;
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g').remove();
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
           if (difference > 0) {
             //add a function for the score addition transition
           }
         },
 
+        componentDidMount: function componentDidMount() {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g').remove();
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+        },
+
         render: function render() {
-          return React.createElement(
-            "div",
-            { className: "scores-container" },
-            React.createElement(
-              "div",
-              { className: "score-container" },
-              this.props.score
-            ),
-            React.createElement(
-              "div",
-              { className: "best-container" },
-              this.props.best
-            )
-          );
+          /*
+              <div className='score-container'>{this.props.score}</div>
+              <div className='best-container'>{this.props.best}</div>
+          */
+          return React.createElement("g", { className: "scores-container" });
         }
       });
 

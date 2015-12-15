@@ -273,7 +273,8 @@ window.exports.viewer = (function () {
         componentDidMount: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg').select('g.grid-container'));
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'));
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save(
             {
@@ -310,7 +311,7 @@ window.exports.viewer = (function () {
         },
 
         render: function () {
-          return (
+          /*
             <div className='gcontainer'>
               <div className='heading' display='block'>
                 <h1 className='title'>2048</h1>
@@ -327,6 +328,21 @@ window.exports.viewer = (function () {
                 <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
               </svg>
             </div>
+          */
+          return (
+            <div>
+              <svg width='500px' className='gcontainer'>
+                <g className='heading'>
+                  <ScoresContainer score={this.state.score} best={this.bestScore()} />
+                </g>
+              </svg>
+              <svg width='500px' height='500px' cursor='default' className='game-container'>
+                <g className='grid-container'>
+                </g>
+                <TileContainer grid={this.state.grid} />
+                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
+              </svg>
+            </div>
           );
         }
       });
@@ -336,19 +352,32 @@ window.exports.viewer = (function () {
           return {score: 0};
         },
 
-        componentWillUpdate: function (nextProps) {
-          var difference = this.props.score - nextProps.score;
+        componentDidUpdate: function (prevProps) {
+          var difference = prevProps.score - this.props.score;
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g')
+            .remove();
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
           if (difference > 0){
             //add a function for the score addition transition
           }
         },
 
+        componentDidMount: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g')
+            .remove();
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+        },
+
         render: function () {
-          return (
-            <div className='scores-container'>
+          /*
               <div className='score-container'>{this.props.score}</div>
               <div className='best-container'>{this.props.best}</div>
-            </div>
+          */
+          return (
+            <g className='scores-container'>
+            </g>
           );
         }
       });
