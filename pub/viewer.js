@@ -748,6 +748,7 @@ window.exports.viewer = (function () {
                 React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore() })
               )
             ),
+            React.createElement("br", null),
             React.createElement(
               "svg",
               { width: "500px", height: "500px", cursor: "default", className: "game-container" },

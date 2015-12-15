@@ -335,7 +335,7 @@ window.exports.viewer = (function () {
                 <g className='heading'>
                   <ScoresContainer score={this.state.score} best={this.bestScore()} />
                 </g>
-              </svg>
+              </svg><br></br>
               <svg width='500px' height='500px' cursor='default' className='game-container'>
                 <g className='grid-container'>
                 </g>
