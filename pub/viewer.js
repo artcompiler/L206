@@ -204,7 +204,7 @@ var addTile = function addTile(svg, tile) {
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55 - 10 * (tile.value.toString().length - 2);
-  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
+  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
@@ -687,7 +687,6 @@ window.exports.viewer = (function () {
         },
 
         render: function render() {
-          //<GameMessage over={this.state.over} won={this.state.won} keepPlaying={this.state.keepPlaying} />
           return React.createElement(
             "div",
             { className: "gcontainer" },
@@ -766,29 +765,34 @@ window.exports.viewer = (function () {
           var ac = this;
           element.selectAll('g').remove();
           if (this.props.terminated) {
-            var g = element.append('g');
+            var g = element.append('g').attr('opacity', 0);
+            g.transition().duration(1200).attr('opacity', 100);
+            g.append('rect').attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
             if (this.props.over) {
               //rgba(238, 228, 218, 0.73) for background
               //118 px x 40 px try again button
-              g.append('rect').attr('x', 200 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+              g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 60 + 'px').text('Game over!');
+              g.append('rect').attr('x', 191 + 'px') //half board size - width/2
+              .attr('y', 353 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
                 return ac.props.restart();
               });
-              g.append('text').attr('x', 250 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
+              g.append('text').attr('x', 250 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
                 return ac.props.restart();
               });
             } else if (this.props.won) {
               //make the restart button
-              g.append('rect').attr('x', 140 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 100 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+              g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 60 + 'px').text('You won!');
+              g.append('rect').attr('x', 129 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
                 return ac.props.restart();
               });
-              g.append('text').attr('x', 190 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+              g.append('text').attr('x', 190 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
                 return ac.props.restart();
               });
               //make the keep playing button
-              g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 120 + 'px').attr('height', 50 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+              g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
                 return ac.props.keepPlaying();
               });
-              g.append('text').attr('x', 310 + 'px').attr('y', 250 + 22 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep playing').on("click", function (d) {
+              g.append('text').attr('x', 310 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
                 return ac.props.keepPlaying();
               });
             }
@@ -820,19 +824,25 @@ window.exports.viewer = (function () {
           }
         },
 
-        componentDidUpdate: function componentDidUpdate() {
-          if (this.props.grid) {
-            var element = d3.select(ReactDOM.findDOMNode(this));
-            element.selectAll('g').remove();
-            //update based on the new grid
-            this.props.grid.cells.forEach(function (column) {
-              column.forEach(function (cell) {
-                if (cell) {
-                  D3Test.addTile(element, cell);
-                }
-              });
-            });
+        shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
+          if (nextProps.grid && this.props !== nextProps) {
+            return true;
+          } else {
+            return false;
           }
+        },
+
+        componentDidUpdate: function componentDidUpdate() {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g').remove();
+          //update based on the new grid
+          this.props.grid.cells.forEach(function (column) {
+            column.forEach(function (cell) {
+              if (cell) {
+                D3Test.addTile(element, cell);
+              }
+            });
+          });
         },
 
         render: function render() {

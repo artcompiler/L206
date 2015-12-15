@@ -310,7 +310,6 @@ window.exports.viewer = (function () {
         },
 
         render: function () {
-          //<GameMessage over={this.state.over} won={this.state.won} keepPlaying={this.state.keepPlaying} />
           return (
             <div className='gcontainer'>
               <div className='heading' display='block'>
@@ -362,23 +361,40 @@ window.exports.viewer = (function () {
             .remove();
           if(this.props.terminated){
             var g = element.append('g')
+              .attr('opacity', 0);
+            g.transition()
+              .duration(1200)
+              .attr('opacity', 100);
+            g.append('rect')
+              .attr('width', 500+'px')
+              .attr('height', 500+'px')
+              .attr('fill', 'rgba(238, 228, 218, 0.73)');
             if(this.props.over){
               //rgba(238, 228, 218, 0.73) for background
               //118 px x 40 px try again button
+              g.append('text')
+                .attr('x', 250+'px')
+                .attr('y', 222+60+'px')
+                .attr('fill', '#776e65')
+                .attr('text-anchor', 'middle')
+                .style('font-weight', 'bold')
+                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
+                .style('font-size', 60+'px')
+                .text('Game over!');
               g.append('rect')
-                .attr('x', 200+'px')
-                .attr('y', 250+'px')
+                .attr('x', 191+'px')//half board size - width/2
+                .attr('y', 353+'px')
                 .attr('rx', 3)
                 .attr('ry', 3)
-                .attr('width', 100+'px')
-                .attr('height', 50+'px')
+                .attr('width', 118+'px')
+                .attr('height', 40+'px')
                 .attr('fill', '#8f7a66')
                 .on("click", function (d){
                   return ac.props.restart();
                 });
               g.append('text')
                 .attr('x', 250+'px')
-                .attr('y', 250+22+'px')
+                .attr('y', 353+26+'px')
                 .attr('fill', '#f9f6f2')
                 .attr('text-anchor', 'middle')
                 .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
@@ -391,20 +407,29 @@ window.exports.viewer = (function () {
                 });
             } else if (this.props.won){
               //make the restart button
+              g.append('text')
+                .attr('x', 250+'px')
+                .attr('y', 222+60+'px')
+                .attr('fill', '#f9f6f2')
+                .attr('text-anchor', 'middle')
+                .style('font-weight', 'bold')
+                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
+                .style('font-size', 60+'px')
+                .text('You won!');
               g.append('rect')
-                .attr('x', 140+'px')
+                .attr('x', 129+'px')
                 .attr('y', 250+'px')
                 .attr('rx', 3)
                 .attr('ry', 3)
-                .attr('width', 100+'px')
-                .attr('height', 50+'px')
+                .attr('width', 118+'px')
+                .attr('height', 40+'px')
                 .attr('fill', '#8f7a66')
                 .on("click", function (d){
                   return ac.props.restart();
                 });
               g.append('text')
                 .attr('x', 190+'px')
-                .attr('y', 250+22+'px')
+                .attr('y', 250+26+'px')
                 .attr('fill', '#f9f6f2')
                 .attr('text-anchor', 'middle')
                 .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
@@ -422,21 +447,21 @@ window.exports.viewer = (function () {
                 .attr('rx', 3)
                 .attr('ry', 3)
                 .attr('width', 120+'px')
-                .attr('height', 50+'px')
+                .attr('height', 40+'px')
                 .attr('fill', '#8f7a66')
                 .on("click", function (d){
                   return ac.props.keepPlaying();
                 });
               g.append('text')
                 .attr('x', 310+'px')
-                .attr('y', 250+22+'px')
+                .attr('y', 250+26+'px')
                 .attr('fill', '#f9f6f2')
                 .attr('text-anchor', 'middle')
                 .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
                 .style('font-size', 18+'px')
                 .style('font-weight', 'bold')
                 .style('cursor', 'default')
-                .text('Keep playing')
+                .text('Keep going')
                 .on("click", function (d){
                   return ac.props.keepPlaying();
                 });
@@ -471,20 +496,26 @@ window.exports.viewer = (function () {
           }
         },
 
-        componentDidUpdate: function () {
-          if(this.props.grid){
-            var element = d3.select(ReactDOM.findDOMNode(this));
-            element.selectAll('g')
-              .remove();
-            //update based on the new grid
-            this.props.grid.cells.forEach(function (column) {
-              column.forEach(function (cell) {
-                if(cell) {
-                  D3Test.addTile(element, cell);
-                }
-              });
-            });
+        shouldComponentUpdate: function (nextProps) {
+          if(nextProps.grid && this.props !== nextProps){
+            return true;
+          } else {
+            return false;
           }
+        },
+
+        componentDidUpdate: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          element.selectAll('g')
+            .remove();
+          //update based on the new grid
+          this.props.grid.cells.forEach(function (column) {
+            column.forEach(function (cell) {
+              if(cell) {
+                D3Test.addTile(element, cell);
+              }
+            });
+          });
         },
 
         render: function () {
