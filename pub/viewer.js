@@ -174,12 +174,13 @@ var round = 3;
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 var gridspacing = 15;
 var boardsize = 500;
+var tilesize = (boardsize - gridspacing * 5) / 4;
 
 var drawGrid = function drawGrid(svg, gridsize) {
   svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', '#bbada0');
   for (var x = 0; x < gridsize; x++) {
     for (var y = 0; y < gridsize; y++) {
-      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('x', 14 + x * 121).attr('y', 14 + y * 121).attr('fill', 'rgba(238, 228, 218, 0.35)');
+      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', gridspacing + x * (tilesize + gridspacing)).attr('y', gridspacing + y * (tilesize + gridspacing)).attr('fill', 'rgba(238, 228, 218, 0.35)');
     }
   }
 };
@@ -193,23 +194,23 @@ var addTile = function addTile(svg, tile) {
 
   //if >8 use #776e65 else use #f9f6f2
   if (tile.previousPosition) {
-    var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
-    t.transition().duration(100).attr("transform", 'translate(' + (14 + tile.x * 121) + ',' + (14 + tile.y * 121) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing)) + ',' + (gridspacing + position.y * (tilesize + gridspacing)) + ')');
+    t.transition().duration(100).attr("transform", 'translate(' + (gridspacing + tile.x * (tilesize + gridspacing)) + ',' + (gridspacing + tile.y * (tilesize + gridspacing)) + ')');
   } else {
     if (tile.mergedFrom) {
       tile.mergedFrom.forEach(function (merged) {
         addTile(svg, merged);
       });
     }
-    var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121 + 107 / 2) + ',' + (14 + position.y * 121 + 107 / 2) + ') scale(0, 0)');
-    t.transition().duration(100).attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing) + tilesize / 2) + ',' + (gridspacing + position.y * (tilesize + gridspacing) + tilesize / 2) + ') scale(0, 0)');
+    t.transition().duration(100).attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing)) + ',' + (gridspacing + position.y * (tilesize + gridspacing)) + ')');
   }
-  t.append('rect').attr('rx', round).attr('ry', round).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
+  t.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55 - 10 * (tile.value.toString().length - 2);
-  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
+  t.append('text').attr('x', tilesize / 2 + 'px').attr('y', tilesize / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
