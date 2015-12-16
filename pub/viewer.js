@@ -172,9 +172,11 @@ var colorMap = {
 //if undefined use #3c3a32
 var round = 3;
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
+var gridspacing = 15;
+var boardsize = 500;
 
 var drawGrid = function drawGrid(svg, gridsize) {
-  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', '#bbada0');
+  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', '#bbada0');
   for (var x = 0; x < gridsize; x++) {
     for (var y = 0; y < gridsize; y++) {
       svg.append('rect').attr('rx', round).attr('ry', round).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('x', 14 + x * 121).attr('y', 14 + y * 121).attr('fill', 'rgba(238, 228, 218, 0.35)');
@@ -216,8 +218,7 @@ var addTile = function addTile(svg, tile) {
 
 var drawAdd = function drawAdd(svg, diff, loc) {
   //font-size 25px, bold, rgba(119, 110, 101, 0.9), 600ms, think it starts where score is
-  svg.select('text.addit').remove();
-  svg.append('text').attr('class', 'addit').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0);
+  svg.append('text').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0).remove();
 };
 
 var drawScore = function drawScore(svg, score, best) {
@@ -226,15 +227,15 @@ var drawScore = function drawScore(svg, score, best) {
   //25 on each side, height 55
   //font-size 13px, color #eee4da
   var bestlength = best.toString().length * 15.5;
-  g.append('rect').attr('x', 450 - bestlength + 'px') //minus width
+  g.append('rect').attr('x', boardsize - (50 + bestlength) + 'px') //minus width
   .attr('height', 55 + 'px').attr('width', 50 + bestlength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
-  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
+  g.append('text').attr('x', boardsize - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
+  g.append('text').attr('x', boardsize - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
   var scorelength = score.toString().length * 15.5;
-  g.append('rect').attr('x', 400 - bestlength - 10 - scorelength + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
-  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
-  return 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2; //score position
+  g.append('rect').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  g.append('text').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
+  g.append('text').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
+  return boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2; //score position
 };
 
 var drawHeader = function drawHeader(svg, rest) {
@@ -252,29 +253,29 @@ var drawHeader = function drawHeader(svg, rest) {
 var endScreen = function endScreen(svg, props, lose) {
   var g = svg.append('g').attr('opacity', 0);
   g.transition().duration(1200).attr('opacity', 100);
-  g.append('rect').attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
+  g.append('rect').attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
   if (lose) {
-    g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
+    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
     g.append('rect').attr('x', 191 + 'px') //half board size - width/2
     .attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
-    g.append('text').attr('x', 250 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
+    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
       return props.restart();
     });
   } else {
-    g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
+    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
     g.append('rect').attr('x', 129 + 'px').attr('y', 250 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
-    g.append('text').attr('x', 190 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+    g.append('text').attr('x', 190 + 'px').attr('y', boardsize / 2 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
       return props.restart();
     });
 
-    g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    g.append('rect').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.keepPlaying();
     });
-    g.append('text').attr('x', 310 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
+    g.append('text').attr('x', 310 + 'px').attr('y', boardsize / 2 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
       return props.keepPlaying();
     });
   }
