@@ -16,6 +16,7 @@ window.exports.viewer = (function () {
           return {
             size: 4,
             startTiles: 2,
+            boardsize: 500,
           };
         },
 
@@ -273,7 +274,7 @@ window.exports.viewer = (function () {
         componentDidMount: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'));
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save(
@@ -311,32 +312,14 @@ window.exports.viewer = (function () {
         },
 
         render: function () {
-          /*
-            <div className='gcontainer'>
-              <div className='heading' display='block'>
-                <h1 className='title'>2048</h1>
-                <ScoresContainer score={this.state.score} best={this.bestScore()} />
-              </div>
-              <div className='above-game'>
-                <p className='game-intro'>Placeholder text!</p>
-                <a className='restart-button' onClick={this.restart}>New Game</a>
-              </div>
-              <svg width='500px' height='500px' cursor='default' className='game-container'>
-                <g className='grid-container'>
-                </g>
-                <TileContainer grid={this.state.grid} />
-                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
-              </svg>
-            </div>
-          */
           return (
             <div>
-              <svg width='500px' className='gcontainer'>
+              <svg width={this.props.boardsize+'px'} className='gcontainer'>
                 <g className='heading'>
                   <ScoresContainer score={this.state.score} best={this.bestScore()} />
                 </g>
               </svg><br></br>
-              <svg width='500px' height='500px' cursor='default' className='game-container'>
+              <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
                 <g className='grid-container'>
                 </g>
                 <TileContainer grid={this.state.grid} />
@@ -348,18 +331,19 @@ window.exports.viewer = (function () {
       });
 
       var ScoresContainer = React.createClass({
-        getInitialState: function () {
-          return {score: 0};
+        shouldComponentUpdate: function (nextProps) {
+          return (this.props.score !== nextProps.score);
         },
 
         componentDidUpdate: function (prevProps) {
-          var difference = prevProps.score - this.props.score;
+          var difference = this.props.score - prevProps.score;
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
           if (difference > 0){
             //add a function for the score addition transition
+            D3Test.drawAdd(element, difference, loc);
           }
         },
 
@@ -371,10 +355,6 @@ window.exports.viewer = (function () {
         },
 
         render: function () {
-          /*
-              <div className='score-container'>{this.props.score}</div>
-              <div className='best-container'>{this.props.best}</div>
-          */
           return (
             <g className='scores-container'>
             </g>
@@ -389,111 +369,10 @@ window.exports.viewer = (function () {
           element.selectAll('g')
             .remove();
           if(this.props.terminated){
-            var g = element.append('g')
-              .attr('opacity', 0);
-            g.transition()
-              .duration(1200)
-              .attr('opacity', 100);
-            g.append('rect')
-              .attr('width', 500+'px')
-              .attr('height', 500+'px')
-              .attr('fill', 'rgba(238, 228, 218, 0.73)');
             if(this.props.over){
-              //rgba(238, 228, 218, 0.73) for background
-              //118 px x 40 px try again button
-              g.append('text')
-                .attr('x', 250+'px')
-                .attr('y', 222+60+'px')
-                .attr('fill', '#776e65')
-                .attr('text-anchor', 'middle')
-                .style('font-weight', 'bold')
-                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
-                .style('font-size', 60+'px')
-                .text('Game over!');
-              g.append('rect')
-                .attr('x', 191+'px')//half board size - width/2
-                .attr('y', 353+'px')
-                .attr('rx', 3)
-                .attr('ry', 3)
-                .attr('width', 118+'px')
-                .attr('height', 40+'px')
-                .attr('fill', '#8f7a66')
-                .on("click", function (d){
-                  return ac.props.restart();
-                });
-              g.append('text')
-                .attr('x', 250+'px')
-                .attr('y', 353+26+'px')
-                .attr('fill', '#f9f6f2')
-                .attr('text-anchor', 'middle')
-                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
-                .style('font-size', 18+'px')
-                .style('font-weight', 'bold')
-                .style('cursor', 'default')
-                .text('Try again')
-                .on("click", function (d){
-                  return ac.props.restart();
-                });
+              D3Test.endScreen(element, ac.props, true);
             } else if (this.props.won){
-              //make the restart button
-              g.append('text')
-                .attr('x', 250+'px')
-                .attr('y', 222+60+'px')
-                .attr('fill', '#f9f6f2')
-                .attr('text-anchor', 'middle')
-                .style('font-weight', 'bold')
-                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
-                .style('font-size', 60+'px')
-                .text('You won!');
-              g.append('rect')
-                .attr('x', 129+'px')
-                .attr('y', 250+'px')
-                .attr('rx', 3)
-                .attr('ry', 3)
-                .attr('width', 118+'px')
-                .attr('height', 40+'px')
-                .attr('fill', '#8f7a66')
-                .on("click", function (d){
-                  return ac.props.restart();
-                });
-              g.append('text')
-                .attr('x', 190+'px')
-                .attr('y', 250+26+'px')
-                .attr('fill', '#f9f6f2')
-                .attr('text-anchor', 'middle')
-                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
-                .style('font-size', 18+'px')
-                .style('font-weight', 'bold')
-                .style('cursor', 'default')
-                .text('Play again')
-                .on("click", function (d){
-                  return ac.props.restart();
-                });
-              //make the keep playing button
-              g.append('rect')
-                .attr('x', 250+'px')
-                .attr('y', 250+'px')
-                .attr('rx', 3)
-                .attr('ry', 3)
-                .attr('width', 120+'px')
-                .attr('height', 40+'px')
-                .attr('fill', '#8f7a66')
-                .on("click", function (d){
-                  return ac.props.keepPlaying();
-                });
-              g.append('text')
-                .attr('x', 310+'px')
-                .attr('y', 250+26+'px')
-                .attr('fill', '#f9f6f2')
-                .attr('text-anchor', 'middle')
-                .style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif')
-                .style('font-size', 18+'px')
-                .style('font-weight', 'bold')
-                .style('cursor', 'default')
-                .text('Keep going')
-                .on("click", function (d){
-                  return ac.props.keepPlaying();
-                });
+              D3Test.endScreen(element, ac.props, false);
             }
           }
         },

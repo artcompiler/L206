@@ -170,11 +170,14 @@ var colorMap = {
 };
 
 //if undefined use #3c3a32
-var drawGrid = function drawGrid(svg) {
-  svg.append('rect').attr('rx', 6).attr('ry', 6).attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', '#bbada0');
-  for (var x = 0; x < 4; x++) {
-    for (var y = 0; y < 4; y++) {
-      svg.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('x', 14 + x * 121).attr('y', 14 + y * 121).attr('fill', 'rgba(238, 228, 218, 0.35)');
+var round = 3;
+var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
+
+var drawGrid = function drawGrid(svg, gridsize) {
+  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', '#bbada0');
+  for (var x = 0; x < gridsize; x++) {
+    for (var y = 0; y < gridsize; y++) {
+      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('x', 14 + x * 121).attr('y', 14 + y * 121).attr('fill', 'rgba(238, 228, 218, 0.35)');
     }
   }
 };
@@ -199,16 +202,22 @@ var addTile = function addTile(svg, tile) {
     var t = svg.append('g').attr("transform", 'translate(' + (14 + position.x * 121 + 107 / 2) + ',' + (14 + position.y * 121 + 107 / 2) + ') scale(0, 0)');
     t.transition().duration(100).attr("transform", 'translate(' + (14 + position.x * 121) + ',' + (14 + position.y * 121) + ')');
   }
-  t.append('rect').attr('rx', 3).attr('ry', 3).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
+  t.append('rect').attr('rx', round).attr('ry', round).attr('width', 107 + 'px').attr('height', 107 + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55 - 10 * (tile.value.toString().length - 2);
-  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
+  t.append('text').attr('x', 107 / 2 + 'px').attr('y', 107 / 2 + fontsize * (6 / 20) + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
   //figure out what to do about merged tiles
+};
+
+var drawAdd = function drawAdd(svg, diff, loc) {
+  //font-size 25px, bold, rgba(119, 110, 101, 0.9), 600ms, think it starts where score is
+  svg.select('text.addit').remove();
+  svg.append('text').attr('class', 'addit').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0);
 };
 
 var drawScore = function drawScore(svg, score, best) {
@@ -218,31 +227,65 @@ var drawScore = function drawScore(svg, score, best) {
   //font-size 13px, color #eee4da
   var bestlength = best.toString().length * 15.5;
   g.append('rect').attr('x', 450 - bestlength + 'px') //minus width
-  .attr('height', 55 + 'px').attr('width', 50 + bestlength + 'px').attr('fill', '#bbada0').attr('rx', 3).attr('ry', 3);
-  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
-  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 13 + 'px').text('BEST');
+  .attr('height', 55 + 'px').attr('width', 50 + bestlength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
+  g.append('text').attr('x', 500 - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
   var scorelength = score.toString().length * 15.5;
-  g.append('rect').attr('x', 400 - bestlength - 10 - scorelength + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', 3).attr('ry', 3);
-  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
-  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 13 + 'px').text('SCORE');
+  g.append('rect').attr('x', 400 - bestlength - 10 - scorelength + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
+  g.append('text').attr('x', 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
+  return 500 - (50 + bestlength) - 10 - (50 + scorelength) / 2; //score position
 };
 
 var drawHeader = function drawHeader(svg, rest) {
-  svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
+  svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
 
-  svg.append('rect').attr('y', 100 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return rest();
   });
 
-  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
+  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
     return rest();
   });
+};
+
+var endScreen = function endScreen(svg, props, lose) {
+  var g = svg.append('g').attr('opacity', 0);
+  g.transition().duration(1200).attr('opacity', 100);
+  g.append('rect').attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
+  if (lose) {
+    g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
+    g.append('rect').attr('x', 191 + 'px') //half board size - width/2
+    .attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+      return props.restart();
+    });
+    g.append('text').attr('x', 250 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
+      return props.restart();
+    });
+  } else {
+    g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
+    g.append('rect').attr('x', 129 + 'px').attr('y', 250 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+      return props.restart();
+    });
+    g.append('text').attr('x', 190 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+      return props.restart();
+    });
+
+    g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+      return props.keepPlaying();
+    });
+    g.append('text').attr('x', 310 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
+      return props.keepPlaying();
+    });
+  }
 };
 
 exports.drawGrid = drawGrid;
 exports.addTile = addTile;
 exports.drawScore = drawScore;
 exports.drawHeader = drawHeader;
+exports.endScreen = endScreen;
+exports.drawAdd = drawAdd;
 
 },{}],3:[function(require,module,exports){
 "use strict";
@@ -424,7 +467,8 @@ window.exports.viewer = (function () {
         getDefaultProps: function getDefaultProps() {
           return {
             size: 4,
-            startTiles: 2
+            startTiles: 2,
+            boardsize: 500
           };
         },
 
@@ -685,7 +729,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'));
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save({
@@ -718,30 +762,12 @@ window.exports.viewer = (function () {
         },
 
         render: function render() {
-          /*
-            <div className='gcontainer'>
-              <div className='heading' display='block'>
-                <h1 className='title'>2048</h1>
-                <ScoresContainer score={this.state.score} best={this.bestScore()} />
-              </div>
-              <div className='above-game'>
-                <p className='game-intro'>Placeholder text!</p>
-                <a className='restart-button' onClick={this.restart}>New Game</a>
-              </div>
-              <svg width='500px' height='500px' cursor='default' className='game-container'>
-                <g className='grid-container'>
-                </g>
-                <TileContainer grid={this.state.grid} />
-                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
-              </svg>
-            </div>
-          */
           return React.createElement(
             "div",
             null,
             React.createElement(
               "svg",
-              { width: "500px", className: "gcontainer" },
+              { width: this.props.boardsize + 'px', className: "gcontainer" },
               React.createElement(
                 "g",
                 { className: "heading" },
@@ -751,7 +777,7 @@ window.exports.viewer = (function () {
             React.createElement("br", null),
             React.createElement(
               "svg",
-              { width: "500px", height: "500px", cursor: "default", className: "game-container" },
+              { width: this.props.boardsize + 'px', height: this.props.boardsize + 'px', cursor: "default", className: "game-container" },
               React.createElement("g", { className: "grid-container" }),
               React.createElement(TileContainer, { grid: this.state.grid }),
               React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated() })
@@ -763,17 +789,18 @@ window.exports.viewer = (function () {
       var ScoresContainer = React.createClass({
         displayName: "ScoresContainer",
 
-        getInitialState: function getInitialState() {
-          return { score: 0 };
+        shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
+          return this.props.score !== nextProps.score;
         },
 
         componentDidUpdate: function componentDidUpdate(prevProps) {
-          var difference = prevProps.score - this.props.score;
+          var difference = this.props.score - prevProps.score;
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
           if (difference > 0) {
             //add a function for the score addition transition
+            D3Test.drawAdd(element, difference, loc);
           }
         },
 
@@ -784,10 +811,6 @@ window.exports.viewer = (function () {
         },
 
         render: function render() {
-          /*
-              <div className='score-container'>{this.props.score}</div>
-              <div className='best-container'>{this.props.best}</div>
-          */
           return React.createElement("g", { className: "scores-container" });
         }
       });
@@ -800,36 +823,10 @@ window.exports.viewer = (function () {
           var ac = this;
           element.selectAll('g').remove();
           if (this.props.terminated) {
-            var g = element.append('g').attr('opacity', 0);
-            g.transition().duration(1200).attr('opacity', 100);
-            g.append('rect').attr('width', 500 + 'px').attr('height', 500 + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
             if (this.props.over) {
-              //rgba(238, 228, 218, 0.73) for background
-              //118 px x 40 px try again button
-              g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 60 + 'px').text('Game over!');
-              g.append('rect').attr('x', 191 + 'px') //half board size - width/2
-              .attr('y', 353 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
-                return ac.props.restart();
-              });
-              g.append('text').attr('x', 250 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
-                return ac.props.restart();
-              });
+              D3Test.endScreen(element, ac.props, true);
             } else if (this.props.won) {
-              //make the restart button
-              g.append('text').attr('x', 250 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 60 + 'px').text('You won!');
-              g.append('rect').attr('x', 129 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
-                return ac.props.restart();
-              });
-              g.append('text').attr('x', 190 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
-                return ac.props.restart();
-              });
-              //make the keep playing button
-              g.append('rect').attr('x', 250 + 'px').attr('y', 250 + 'px').attr('rx', 3).attr('ry', 3).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
-                return ac.props.keepPlaying();
-              });
-              g.append('text').attr('x', 310 + 'px').attr('y', 250 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', '"Clear Sans", "Helvetica Neue", Arial, sans-serif').style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
-                return ac.props.keepPlaying();
-              });
+              D3Test.endScreen(element, ac.props, false);
             }
           }
         },
