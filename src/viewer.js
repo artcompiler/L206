@@ -338,7 +338,6 @@ window.exports.viewer = (function () {
 
         componentDidUpdate: function (prevProps) {
           var difference = this.props.score - prevProps.score;
-          console.log(difference);
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
