@@ -158,16 +158,17 @@ window.exports.viewer = (function () {
 
           this.prepareTiles();
 
-          traversals.x.forEach(function (x) {
-            traversals.y.forEach(function (y) {
-              self.setState(function(previousState, currentProps) {
-                var newscore = previousState.score;
-                var ifwon = previousState.won;
+          this.setState(function (previousState, currentProps) {
+            let newscore = previousState.score;
+            let ifwon = previousState.won;
+
+            traversals.x.forEach(function (x) {
+              traversals.y.forEach(function (y) {
                 cell = { x: x, y: y };
                 tile = previousState.grid.cellContent(cell);
 
                 if(tile) {
-                  var positions = this.findFarthestPosition(cell, vector, previousState.grid);
+                  var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
 
                   if(next && next.value === tile.value && !next.mergedFrom) {
@@ -192,9 +193,9 @@ window.exports.viewer = (function () {
                     moved = true;
                   }
                 }
-                return {grid: previousState.grid, score: newscore, won: ifwon};
               });
             });
+            return {grid: previousState.grid, score: newscore, won: ifwon};
           });
 
           if(moved) {
@@ -337,6 +338,7 @@ window.exports.viewer = (function () {
 
         componentDidUpdate: function (prevProps) {
           var difference = this.props.score - prevProps.score;
+          console.log(difference);
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();

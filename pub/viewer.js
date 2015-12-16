@@ -612,16 +612,17 @@ window.exports.viewer = (function () {
 
           this.prepareTiles();
 
-          traversals.x.forEach(function (x) {
-            traversals.y.forEach(function (y) {
-              self.setState(function (previousState, currentProps) {
-                var newscore = previousState.score;
-                var ifwon = previousState.won;
+          this.setState(function (previousState, currentProps) {
+            var newscore = previousState.score;
+            var ifwon = previousState.won;
+
+            traversals.x.forEach(function (x) {
+              traversals.y.forEach(function (y) {
                 cell = { x: x, y: y };
                 tile = previousState.grid.cellContent(cell);
 
                 if (tile) {
-                  var positions = this.findFarthestPosition(cell, vector, previousState.grid);
+                  var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
 
                   if (next && next.value === tile.value && !next.mergedFrom) {
@@ -648,10 +649,41 @@ window.exports.viewer = (function () {
                     moved = true;
                   }
                 }
-                return { grid: previousState.grid, score: newscore, won: ifwon };
               });
             });
+            return { grid: previousState.grid, score: newscore, won: ifwon };
           });
+          /*traversals.x.forEach(function (x) {
+            traversals.y.forEach(function (y) {
+              self.setState(function(previousState, currentProps) {
+                var newscore = previousState.score;
+                var ifwon = previousState.won;
+                cell = { x: x, y: y };
+                tile = previousState.grid.cellContent(cell);
+                 if(tile) {
+                  var positions = this.findFarthestPosition(cell, vector, previousState.grid);
+                  var next = previousState.grid.cellContent(positions.next);
+                   if(next && next.value === tile.value && !next.mergedFrom) {
+                    var merged = new Tile(positions.next, tile.value*2);
+                    merged.mergedFrom = [tile, next];
+                     previousState.grid.insertTile(merged);
+                    previousState.grid.removeTile(tile);
+                     tile.updatePosition(positions.next);
+                     newscore += merged.value;
+                     if (merged.value === 2048) ifwon = true;
+                  } else {//moveTile
+                    previousState.grid.cells[tile.x][tile.y] = null;
+                    previousState.grid.cells[positions.farthest.x][positions.farthest.y] = tile;
+                    tile.updatePosition(positions.farthest);
+                  }
+                   if (!(cell.x === tile.x && cell.y === tile.y)) {//if position has changed
+                    moved = true;
+                  }
+                }
+                return {grid: previousState.grid, score: newscore, won: ifwon};
+              });
+            });
+          });*/
 
           if (moved) {
             this.addRandomTile();
@@ -797,6 +829,7 @@ window.exports.viewer = (function () {
 
         componentDidUpdate: function componentDidUpdate(prevProps) {
           var difference = this.props.score - prevProps.score;
+          console.log(difference);
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
           var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
