@@ -299,7 +299,11 @@ window.exports.viewer = (function () {
           //use D3 to update the foreground here
           if(this.state.over){
             this.clearGame();
-          } else if(this.state.grid) {
+          }
+        },
+
+        render: function () {
+          if(this.state.grid) {
             this.save(
               {
                 grid: this.state.grid.serialize(),
@@ -310,9 +314,6 @@ window.exports.viewer = (function () {
               }
             );
           }
-        },
-
-        render: function () {
           return (
             <div>
               <svg width={this.props.boardsize+'px'} className='gcontainer'>
