@@ -210,7 +210,7 @@ var addTile = function addTile(svg, tile) {
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55 - 10 * (tile.value.toString().length - 2);
-  var scale = boardsize / 500;
+  var scale = tilesize / 106.25;
   t.append('text').attr('x', tilesize / 2 / scale + 'px').attr('y', tilesize / 2 / scale + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr("transform", 'scale(' + scale + ', ' + scale + ')').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
