@@ -227,16 +227,19 @@ var drawScore = function drawScore(svg, score, best) {
   //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
   //25 on each side, height 55
   //font-size 13px, color #eee4da
-  var bestlength = best.toString().length * 15.5;
-  g.append('rect').attr('x', boardsize - (50 + bestlength) + 'px') //minus width
-  .attr('height', 55 + 'px').attr('width', 50 + bestlength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  g.append('text').attr('x', boardsize - (50 + bestlength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
-  g.append('text').attr('x', boardsize - (50 + bestlength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
-  var scorelength = score.toString().length * 15.5;
-  g.append('rect').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) + 'px').attr('height', 55 + 'px').attr('width', 50 + scorelength + 'px').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  g.append('text').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 50 + 'px').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
-  g.append('text').attr('x', boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
-  return boardsize - (50 + bestlength) - 10 - (50 + scorelength) / 2; //score position
+  var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
+  var tb = tex.node().getBBox();
+  rec.attr('x', boardsize - (50 + tb.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
+  tex.attr('x', boardsize - (50 + tb.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', boardsize - (50 + tb.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
+  rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
+  var ts = tex.node().getBBox();
+  rec.attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + ts.width + 'px');
+  tex.attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
+  return boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2; //score position
 };
 
 var drawHeader = function drawHeader(svg, rest) {
