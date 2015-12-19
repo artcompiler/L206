@@ -365,6 +365,14 @@ window.exports.viewer = (function () {
       });
 
       var GameMessage = React.createClass({
+        componentDidMount: function () {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          var ac = this;
+          if(this.props.terminated && this.props.won){
+            D3Test.endScreen(element, ac.props, false);
+          }
+        },
+
         componentDidUpdate: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           var ac = this;

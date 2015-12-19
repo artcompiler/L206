@@ -256,31 +256,32 @@ var drawHeader = function drawHeader(svg, rest) {
 };
 
 var endScreen = function endScreen(svg, props, lose) {
-  var g = svg.append('g').attr('opacity', 0);
+  var scale = boardsize / 500;
+  var g = svg.append('g').attr('opacity', 0).attr('transform', 'scale(' + scale + ',' + scale + ')');
   g.transition().duration(1200).attr('opacity', 100);
-  g.append('rect').attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
+  g.append('rect').attr('width', boardsize / scale + 'px').attr('height', boardsize / scale + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
   if (lose) {
-    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
+    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
     g.append('rect').attr('x', 191 + 'px') //half board size - width/2
     .attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
-    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
+    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
       return props.restart();
     });
   } else {
-    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', 222 + 60 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
-    g.append('rect').attr('x', 129 + 'px').attr('y', 250 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
+    g.append('rect').attr('x', 129 + 'px').attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
-    g.append('text').attr('x', 190 + 'px').attr('y', boardsize / 2 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+    g.append('text').attr('x', 190 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
       return props.restart();
     });
 
-    g.append('rect').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    g.append('rect').attr('x', 252 + 'px').attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.keepPlaying();
     });
-    g.append('text').attr('x', 310 + 'px').attr('y', boardsize / 2 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
+    g.append('text').attr('x', 310 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
       return props.keepPlaying();
     });
   }
@@ -825,6 +826,14 @@ window.exports.viewer = (function () {
 
       var GameMessage = React.createClass({
         displayName: "GameMessage",
+
+        componentDidMount: function componentDidMount() {
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          var ac = this;
+          if (this.props.terminated && this.props.won) {
+            D3Test.endScreen(element, ac.props, false);
+          }
+        },
 
         componentDidUpdate: function componentDidUpdate() {
           var element = d3.select(ReactDOM.findDOMNode(this));
