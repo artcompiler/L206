@@ -172,11 +172,10 @@ var colorMap = {
 //if undefined use #3c3a32
 var round = 3;
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
-var gridspacing = 15;
-var boardsize = 500;
-var tilesize = (boardsize - gridspacing * 5) / 4;
+//let tilesize = (boardsize - gridspacing*(gridsize+1))/gridsize;
 
-var drawGrid = function drawGrid(svg, gridsize) {
+var drawGrid = function drawGrid(svg, gridsize, boardsize, gridspacing) {
+  var tilesize = (boardsize - gridspacing * (gridsize + 1)) / gridsize;
   svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', '#bbada0');
   for (var x = 0; x < gridsize; x++) {
     for (var y = 0; y < gridsize; y++) {
@@ -189,7 +188,8 @@ var drawGrid = function drawGrid(svg, gridsize) {
 //border radius 3 pixels
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
-var addTile = function addTile(svg, tile) {
+var addTile = function addTile(svg, tile, gridsize, boardsize, gridspacing) {
+  var tilesize = (boardsize - gridspacing * (gridsize + 1)) / gridsize;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
@@ -199,7 +199,7 @@ var addTile = function addTile(svg, tile) {
   } else {
     if (tile.mergedFrom) {
       tile.mergedFrom.forEach(function (merged) {
-        addTile(svg, merged);
+        addTile(svg, merged, gridsize, boardsize, gridspacing);
       });
     }
     var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing) + tilesize / 2) + ',' + (gridspacing + position.y * (tilesize + gridspacing) + tilesize / 2) + ') scale(0, 0)');
@@ -223,7 +223,7 @@ var drawAdd = function drawAdd(svg, diff, loc) {
   svg.append('text').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0).remove();
 };
 
-var drawScore = function drawScore(svg, score, best) {
+var drawScore = function drawScore(svg, score, best, boardsize) {
   var g = svg.append('g');
   //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
   //25 on each side, height 55
@@ -256,6 +256,7 @@ var drawHeader = function drawHeader(svg, rest) {
 };
 
 var endScreen = function endScreen(svg, props, lose) {
+  var boardsize = props.boardsize;
   var scale = boardsize / 500;
   var g = svg.append('g').attr('opacity', 0).attr('transform', 'scale(' + scale + ',' + scale + ')');
   g.transition().duration(1200).attr('opacity', 100);
@@ -466,18 +467,18 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
     var data = JSON.parse(obj).data;
-    if (data === true) {
+    if (data.play === true) {
       //react stuff starts here
       var Game = React.createClass({
         displayName: "Game",
 
-        getDefaultProps: function getDefaultProps() {
+        /*getDefaultProps: function () {
           return {
-            size: 4,
+            //size: 4,
             startTiles: 2,
-            boardsize: 500
+            //boardsize: 500,
           };
-        },
+        },*/
 
         save: function save(st) {
           window.localStorage.setItem("gameState", JSON.stringify(st));
@@ -551,7 +552,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function addStartTiles() {
-          for (var i = 0; i < this.props.startTiles; i++) {
+          for (var i = 0; i < 2; i++) {
             this.addRandomTile();
           }
         },
@@ -737,7 +738,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size);
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save({
@@ -780,7 +781,7 @@ window.exports.viewer = (function () {
               React.createElement(
                 "g",
                 { className: "heading" },
-                React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore() })
+                React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize })
               )
             ),
             React.createElement("br", null),
@@ -788,8 +789,8 @@ window.exports.viewer = (function () {
               "svg",
               { width: this.props.boardsize + 'px', height: this.props.boardsize + 'px', cursor: "default", className: "game-container" },
               React.createElement("g", { className: "grid-container" }),
-              React.createElement(TileContainer, { grid: this.state.grid }),
-              React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated() })
+              React.createElement(TileContainer, { grid: this.state.grid, size: this.props.size, boardsize: this.props.boardsize, spacing: this.props.spacing }),
+              React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated(), boardsize: this.props.boardsize })
             )
           );
         }
@@ -806,7 +807,7 @@ window.exports.viewer = (function () {
           var difference = this.props.score - prevProps.score;
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
-          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
           if (difference > 0) {
             //add a function for the score addition transition
             D3Test.drawAdd(element, difference, loc);
@@ -816,7 +817,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
         },
 
         render: function render() {
@@ -863,10 +864,11 @@ window.exports.viewer = (function () {
             var element = d3.select(ReactDOM.findDOMNode(this));
             element.selectAll('g').remove();
             //update based on the new grid
+            var ac = this.props;
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if (cell) {
-                  D3Test.addTile(element, cell);
+                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
                 }
               });
             });
@@ -885,10 +887,11 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
           //update based on the new grid
+          var ac = this.props;
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if (cell) {
-                D3Test.addTile(element, cell);
+                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
               }
             });
           });
@@ -898,8 +901,7 @@ window.exports.viewer = (function () {
           return React.createElement("g", { className: "tile-container" });
         }
       });
-
-      ReactDOM.render(React.createElement(Game, null), document.getElementById("graff-view"));
+      ReactDOM.render(React.createElement(Game, { boardsize: +data.size, size: +data.grid, spacing: +data.spacing }), document.getElementById("graff-view"));
     }
     return;
   }

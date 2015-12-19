@@ -9,16 +9,16 @@ import * as ReactDOM from "react-dom";
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
     var data = JSON.parse(obj).data;
-    if(data === true){
+    if(data.play === true){
       //react stuff starts here
       var Game = React.createClass({
-        getDefaultProps: function () {
+        /*getDefaultProps: function () {
           return {
-            size: 4,
+            //size: 4,
             startTiles: 2,
-            boardsize: 500,
+            //boardsize: 500,
           };
-        },
+        },*/
 
         save: function (st) {
           window.localStorage.setItem("gameState", JSON.stringify(st));
@@ -92,7 +92,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function () {
-          for (var i = 0; i < this.props.startTiles; i++) {
+          for (var i = 0; i < 2; i++) {
             this.addRandomTile();
           }
         },
@@ -275,7 +275,7 @@ window.exports.viewer = (function () {
         componentDidMount: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size);
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
           this.save(
@@ -318,14 +318,14 @@ window.exports.viewer = (function () {
             <div>
               <svg width={this.props.boardsize+'px'} className='gcontainer'>
                 <g className='heading'>
-                  <ScoresContainer score={this.state.score} best={this.bestScore()} />
+                  <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/>
                 </g>
               </svg><br></br>
               <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
                 <g className='grid-container'>
                 </g>
-                <TileContainer grid={this.state.grid} />
-                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} />
+                <TileContainer grid={this.state.grid} size={this.props.size} boardsize={this.props.boardsize} spacing={this.props.spacing}/>
+                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} boardsize={this.props.boardsize}/>
               </svg>
             </div>
           );
@@ -342,7 +342,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
-          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
           if (difference > 0){
             //add a function for the score addition transition
             D3Test.drawAdd(element, difference, loc);
@@ -353,7 +353,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0);
+          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
         },
 
         render: function () {
@@ -404,10 +404,11 @@ window.exports.viewer = (function () {
             element.selectAll('g')
               .remove();
             //update based on the new grid
+            var ac = this.props;
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if(cell) {
-                  D3Test.addTile(element, cell);
+                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
                 }
               });
             });
@@ -427,10 +428,11 @@ window.exports.viewer = (function () {
           element.selectAll('g')
             .remove();
           //update based on the new grid
+          var ac = this.props;
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if(cell) {
-                D3Test.addTile(element, cell);
+                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
               }
             });
           });
@@ -443,9 +445,8 @@ window.exports.viewer = (function () {
           );
         }
       });
-
       ReactDOM.render(
-        <Game/>,
+        <Game boardsize={+data.size} size={+data.grid} spacing={+data.spacing}/>,
         document.getElementById("graff-view")
       );
     }

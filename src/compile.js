@@ -38,116 +38,11 @@ let translate = (function() {
   }
   // BEGIN VISITOR METHODS
   let edgesNode;
-  /*function str(node, options, resume) {
-    let val = node.elts[0];
-    resume([], {
-      value: val
-    });
-  }
   function num(node, options, resume) {
     let val = node.elts[0];
-    resume([], {
-      value: val
-    });
-  }
-  function ident(node, options, resume) {
-    let val = node.elts[0];
-    resume([], [val]);
-  }
-  function bool(node, options, resume) {
-    let val = node.elts[0];
-    resume([], [val]);
-  }
-  function add(node, options, resume) {
-    visit(node.elts[0], options, function (err1, val1) {
-      val1 = +val1.value;
-      if (isNaN(val1)) {
-        err1 = err1.concat(error("Argument must be a number.", node.elts[0]));
-      }
-      visit(node.elts[1], options, function (err2, val2) {
-        val2 = +val2.value;
-        if (isNaN(val2)) {
-          err2 = err2.concat(error("Argument must be a number.", node.elts[1]));
-        }
-        resume([].concat(err1).concat(err2), val1 + val2);
-      });
-    });
+    resume([], val);
   };
-  function style(node, options, resume) {
-    visit(node.elts[0], options, function (err1, val1) {
-      visit(node.elts[1], options, function (err2, val2) {
-        resume([].concat(err1).concat(err2), {
-          value: val1,
-          style: val2,
-        });
-      });
-    });
-  };
-  function list(node, options, resume) {
-    if (node.elts && node.elts.length > 1) {
-      visit(node.elts[0], options, function (err1, val1) {
-        node.elts.shift();
-        list(node, options, function (err2, val2) {
-          resume([].concat(err1).concat(err2), [].concat(val1).concat(val2));
-        });
-      });
-    } else if (node.elts && node.elts.length === 0) {
-      visit(node.elts[0], options, function (err1, val1) {
-        resume([].concat(err1), [].concat(val1));
-      });
-    } else {
-      resume([], []);
-    }
-  };
-  function binding(node, options, resume) {
-    visit(node.elts[0], options, function (err1, val1) {
-      visit(node.elts[1], options, function (err2, val2) {
-        resume([].concat(err1).concat(err2), {key: val1, val: val2});
-      });
-    });
-  };
-  function record(node, options, resume) {
-    if (node.elts && node.elts.length > 1) {
-      visit(node.elts[0], options, function (err1, val1) {
-        node.elts.shift();
-        record(node, options, function (err2, val2) {
-          resume([].concat(err1).concat(err2), [].concat(val1).concat(val2));
-        });
-      });
-    } else if (node.elts && node.elts.length > 0) {
-      visit(node.elts[0], options, function (err1, val1) {
-        resume([].concat(err1), [].concat(val1));
-      });
-    } else {
-      resume([], []);
-    }
-  };
-  function get(path, data, resume) {
-    if (data) {
-      path += "?" + querystring.stringify(data);
-    }
-    path = path.trim().replace(/ /g, "+");
-    var options = {
-      method: "GET",
-      host: getGCHost(),
-      port: getGCPort(),
-      path: path,
-    };
-    var req = http.get(options, function(res) {
-      var data = "";
-      res.on('data', function (chunk) {
-        data += chunk;
-      }).on('end', function () {
-        try {
-          resume([], JSON.parse(data));
-        } catch (e) {
-          console.log("parse error: " + e.stack);
-        }
-      }).on("error", function () {
-        console.log("error() status=" + res.statusCode + " data=" + data);
-      });
-    });
-  }*/
+
   function program(node, options, resume) {
     if (!options) {
       options = {};
@@ -155,7 +50,8 @@ let translate = (function() {
     visit(node.elts[0], options, function (err, val) {
       resume(err, val);
     });
-  }
+  };
+
   function exprs(node, options, resume) {
     if (node.elts && node.elts.length > 1) {
       visit(node.elts[0], options, function (err1, val1) {
@@ -172,13 +68,68 @@ let translate = (function() {
       resume([], []);
     }
   };
+
+  function set(node, options, resume, params){
+    visit(node.elts[0], options, function (err, val) {
+      if(typeof val !== "object" || !val || val.play !== true){
+        err = err.concat(error("Argument Data invalid.", node.elts[0]));
+      } else {
+        if(params.op && params.op === "positive"){
+          visit(node.elts[1], options, function (err2, val2) {
+            if(isNaN(val2) || val2 <= 0){
+              err2 = err2.concat(error("Argument must be a positive number.", node.elts[1]));
+            }
+            if(val){val[params.prop] = +val2;}
+            err = err.concat(err2);
+          });
+        }
+      }
+      resume([].concat(err), val);
+    });
+  };
+
   function play(node, options, resume) {
-    resume([], [true]);
-  }
+    resume([], {play: true, grid: 4, size: 500, spacing: 15});
+  };
+
+  function grid(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "grid"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function size(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "size"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function spacing(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "spacing"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
+    "NUM": num,
     "PLAY" : play,
+    "GRID" : grid,
+    "SIZE" : size,
+    "SPACING" : spacing,
   }
   return translate;
 })();
