@@ -552,7 +552,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function addStartTiles() {
-          for (var i = 0; i < 2; i++) {
+          for (var i = 0; i < this.props.seed; i++) {
             this.addRandomTile();
           }
         },
@@ -642,7 +642,7 @@ window.exports.viewer = (function () {
 
                     newscore += merged.value;
 
-                    if (merged.value === 2048) ifwon = true;
+                    if (merged.value === currentProps.goal) ifwon = true;
                   } else {
                     //moveTile
                     previousState.grid.cells[tile.x][tile.y] = null;
@@ -901,7 +901,7 @@ window.exports.viewer = (function () {
           return React.createElement("g", { className: "tile-container" });
         }
       });
-      ReactDOM.render(React.createElement(Game, { boardsize: +data.size, size: +data.grid, spacing: +data.spacing }), document.getElementById("graff-view"));
+      ReactDOM.render(React.createElement(Game, { boardsize: +data.size, size: +data.grid, spacing: +data.spacing, seed: +data.seed, goal: +data.goal }), document.getElementById("graff-view"));
     }
     return;
   }

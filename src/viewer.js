@@ -92,7 +92,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function () {
-          for (var i = 0; i < 2; i++) {
+          for (var i = 0; i < this.props.seed; i++) {
             this.addRandomTile();
           }
         },
@@ -182,7 +182,7 @@ window.exports.viewer = (function () {
 
                     newscore += merged.value;
 
-                    if (merged.value === 2048) ifwon = true;
+                    if (merged.value === currentProps.goal) ifwon = true;
                   } else {//moveTile
                     previousState.grid.cells[tile.x][tile.y] = null;
                     previousState.grid.cells[positions.farthest.x][positions.farthest.y] = tile;
@@ -446,7 +446,7 @@ window.exports.viewer = (function () {
         }
       });
       ReactDOM.render(
-        <Game boardsize={+data.size} size={+data.grid} spacing={+data.spacing}/>,
+        <Game boardsize={+data.size} size={+data.grid} spacing={+data.spacing} seed={+data.seed} goal={+data.goal}/>,
         document.getElementById("graff-view")
       );
     }

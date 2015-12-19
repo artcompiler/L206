@@ -89,7 +89,7 @@ let translate = (function() {
   };
 
   function play(node, options, resume) {
-    resume([], {play: true, grid: 4, size: 500, spacing: 15});
+    resume([], {play: true, grid: 4, size: 500, spacing: 15, goal: 2048, seed: 2});
   };
 
   function grid(node, options, resume) {
@@ -122,6 +122,26 @@ let translate = (function() {
     }, params);
   };
 
+  function goal(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "goal"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function seed(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "seed"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
@@ -130,6 +150,8 @@ let translate = (function() {
     "GRID" : grid,
     "SIZE" : size,
     "SPACING" : spacing,
+    "GOAL" : goal,
+    "SEED" : seed,
   }
   return translate;
 })();
