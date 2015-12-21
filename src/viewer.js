@@ -33,6 +33,11 @@ window.exports.viewer = (function () {
           return window.localStorage.getItem("bestScore") || 0;
         },
 
+        clearBest: function () {
+          window.localStorage.setItem("bestScore", 0);
+          this.restart();
+        },
+
         restart: function () {
           this.replaceState(function(previousState, currentProps) {
             return {};
@@ -173,9 +178,9 @@ window.exports.viewer = (function () {
                 if(tile) {
                   var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
-
-                  if(next && (currentProps.mode[1] || next.value === tile.value) && !next.mergedFrom) {
-                    var merged = new Tile(positions.next, self.calculate(tile.value, next.value, previousState.rule));
+                  var mval = self.calculate(tile.value, next, previousState.rule, currentProps.mode[1]);
+                  if(!isNaN(mval)) {
+                    var merged = new Tile(positions.next, mval);
                     merged.mergedFrom = [tile, next];
 
                     previousState.grid.insertTile(merged);
@@ -211,18 +216,25 @@ window.exports.viewer = (function () {
           }
         },
 
-        calculate: function (tval, nval, rule) {
-          var ret;
-          switch(rule){
-            case 0://addition
-              ret = tval + nval;
-              break;
-            case 1: //multiplication
-              ret = tval * nval;
-              break;
-            case 2: //division
-              ret = (tval > nval) ? tval / nval : nval / tval;
-              break;
+        calculate: function (tval, next, rule, any) {
+          var ret = undefined;
+          if(next && !next.mergedFrom){
+            var nval = next.value;
+            if(any || tval === nval || rule === 2)
+            switch(rule){
+              case 0://addition
+                ret = tval + nval;
+                break;
+              case 1: //multiplication
+                ret = tval * nval;
+                break;
+              case 2: //division
+                ret = (tval > nval) ? tval / nval : nval / tval;
+                if(ret !== Math.floor(ret)){ret = undefined;}
+                break;
+              case 3: //fibb
+
+            }
           }
           return ret;
         },
@@ -295,7 +307,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
           window.addEventListener("keydown", this.handleMove);
           if(this.props.mode[0]){
             D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);

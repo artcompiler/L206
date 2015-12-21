@@ -243,7 +243,7 @@ var drawScore = function drawScore(svg, score, best, boardsize) {
   return boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2; //score position
 };
 
-var drawHeader = function drawHeader(svg, rest) {
+var drawHeader = function drawHeader(svg, rest, cl) {
   svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
 
   svg.append('rect').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
@@ -253,10 +253,18 @@ var drawHeader = function drawHeader(svg, rest) {
   svg.append('text').attr('x', 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
     return rest();
   });
+
+  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+    return cl();
+  });
+
+  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
+    return cl();
+  });
 };
 
 var toggleButton = function toggleButton(svg, t, rule) {
-  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return t();
   });
 
@@ -273,7 +281,7 @@ var toggleButton = function toggleButton(svg, t, rule) {
       break;
   }
 
-  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
+  svg.append('text').attr('x', (129 + 5) * 2 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
     return t();
   });
 };
@@ -517,6 +525,11 @@ window.exports.viewer = (function () {
           return window.localStorage.getItem("bestScore") || 0;
         },
 
+        clearBest: function clearBest() {
+          window.localStorage.setItem("bestScore", 0);
+          this.restart();
+        },
+
         restart: function restart() {
           this.replaceState(function (previousState, currentProps) {
             return {};
@@ -657,9 +670,9 @@ window.exports.viewer = (function () {
                 if (tile) {
                   var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
-
-                  if (next && (currentProps.mode[1] || next.value === tile.value) && !next.mergedFrom) {
-                    var merged = new _grid.Tile(positions.next, self.calculate(tile.value, next.value, previousState.rule));
+                  var mval = self.calculate(tile.value, next, previousState.rule, currentProps.mode[1]);
+                  if (!isNaN(mval)) {
+                    var merged = new _grid.Tile(positions.next, mval);
                     merged.mergedFrom = [tile, next];
 
                     previousState.grid.insertTile(merged);
@@ -697,21 +710,29 @@ window.exports.viewer = (function () {
           }
         },
 
-        calculate: function calculate(tval, nval, rule) {
-          var ret;
-          switch (rule) {
-            case 0:
-              //addition
-              ret = tval + nval;
-              break;
-            case 1:
-              //multiplication
-              ret = tval * nval;
-              break;
-            case 2:
-              //division
-              ret = tval > nval ? tval / nval : nval / tval;
-              break;
+        calculate: function calculate(tval, next, rule, any) {
+          var ret = undefined;
+          if (next && !next.mergedFrom) {
+            var nval = next.value;
+            if (any || tval === nval || rule === 2) switch (rule) {
+              case 0:
+                //addition
+                ret = tval + nval;
+                break;
+              case 1:
+                //multiplication
+                ret = tval * nval;
+                break;
+              case 2:
+                //division
+                ret = tval > nval ? tval / nval : nval / tval;
+                if (ret !== Math.floor(ret)) {
+                  ret = undefined;
+                }
+                break;
+              case 3: //fibb
+
+            }
           }
           return ret;
         },
@@ -785,7 +806,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
           window.addEventListener("keydown", this.handleMove);
           if (this.props.mode[0]) {
             D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
