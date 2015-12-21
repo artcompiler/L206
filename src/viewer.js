@@ -12,14 +12,6 @@ window.exports.viewer = (function () {
     if(data.play === true){
       //react stuff starts here
       var Game = React.createClass({
-        /*getDefaultProps: function () {
-          return {
-            //size: 4,
-            startTiles: 2,
-            //boardsize: 500,
-          };
-        },*/
-
         save: function (st) {
           window.localStorage.setItem("gameState", JSON.stringify(st));
           var bs = window.localStorage.getItem("bestScore");
@@ -50,6 +42,16 @@ window.exports.viewer = (function () {
           this.setup();
         },
 
+        toggle: function () {
+          this.setState(function(previousState, currentProps) {
+            var t = ++previousState.rule;
+            if(t > 2){
+              t = 0;
+            }
+            return {rule: t};
+          });
+        },
+
         keepPlaying: function () {
           this.setState(function(previousState, currentProps) {
            return {keepPlaying: true};
@@ -74,7 +76,8 @@ window.exports.viewer = (function () {
                 score: prevState.score,
                 over: prevState.over,
                 won: prevState.won,
-                keepPlaying: prevState.keepPlaying
+                keepPlaying: prevState.keepPlaying,
+                rule: prevState.rule,
               };
             });
           } else {
@@ -85,6 +88,7 @@ window.exports.viewer = (function () {
                 over: false,
                 won: false,
                 keepPlaying: false,
+                rule: currentProps.mode[2],
               };
             });
             this.addStartTiles();
@@ -92,7 +96,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function () {
-          for (var i = 0; i < this.props.seed; i++) {
+          for (var i = 0; i < this.props.size/2; i++) {
             this.addRandomTile();
           }
         },
@@ -100,7 +104,7 @@ window.exports.viewer = (function () {
         addRandomTile: function () {
           this.setState(function(previousState, currentProps) {
             if(previousState.grid.cellsAvailable()) {
-              var value = Math.random() < 0.9 ? 2 : 4;
+              var value = Math.random() < 0.9 ? this.props.seed : this.props.seed*2;
               var tile = new Tile(previousState.grid.randomAvailableCell(), value);
 
               previousState.grid.insertTile(tile);
@@ -157,7 +161,6 @@ window.exports.viewer = (function () {
           let moved = false;
 
           this.prepareTiles();
-
           this.setState(function (previousState, currentProps) {
             let newscore = previousState.score;
             let ifwon = previousState.won;
@@ -171,8 +174,8 @@ window.exports.viewer = (function () {
                   var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
 
-                  if(next && next.value === tile.value && !next.mergedFrom) {
-                    var merged = new Tile(positions.next, tile.value*2);
+                  if(next && (currentProps.mode[1] || next.value === tile.value) && !next.mergedFrom) {
+                    var merged = new Tile(positions.next, self.calculate(tile.value, next.value, previousState.rule));
                     merged.mergedFrom = [tile, next];
 
                     previousState.grid.insertTile(merged);
@@ -206,6 +209,22 @@ window.exports.viewer = (function () {
               } else return {};
             });
           }
+        },
+
+        calculate: function (tval, nval, rule) {
+          var ret;
+          switch(rule){
+            case 0://addition
+              ret = tval + nval;
+              break;
+            case 1: //multiplication
+              ret = tval * nval;
+              break;
+            case 2: //division
+              ret = (tval > nval) ? tval / nval : nval / tval;
+              break;
+          }
+          return ret;
         },
 
         getVector: function (direction) {
@@ -278,16 +297,9 @@ window.exports.viewer = (function () {
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
-          this.save(
-            {
-              grid: this.state.grid.serialize(),
-              score: this.state.score,
-              over: this.state.over,
-              won: this.state.won,
-              keepPlaying: this.state.keepPlaying,
-            }
-          );
-
+          if(this.props.mode[0]){
+            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
+          }
         },
 
         componentWillUnmount: function () {
@@ -295,7 +307,10 @@ window.exports.viewer = (function () {
         },
 
         componentDidUpdate: function () {
-          var element = ReactDOM.findDOMNode(this);
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          if(this.props.mode[0]){
+            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, this.state.rule);
+          }
           //use D3 to update the foreground here
           if(this.state.over){
             this.clearGame();
@@ -311,6 +326,7 @@ window.exports.viewer = (function () {
                 over: this.state.over,
                 won: this.state.won,
                 keepPlaying: this.state.keepPlaying,
+                rule: this.state.rule,
               }
             );
           }
@@ -416,7 +432,7 @@ window.exports.viewer = (function () {
         },
 
         shouldComponentUpdate: function (nextProps) {
-          if(nextProps.grid && this.props !== nextProps){
+          if(nextProps.grid){
             return true;
           } else {
             return false;
@@ -446,7 +462,14 @@ window.exports.viewer = (function () {
         }
       });
       ReactDOM.render(
-        <Game boardsize={+data.size} size={+data.grid} spacing={+data.spacing} seed={+data.seed} goal={+data.goal}/>,
+        <Game
+          boardsize={+data.size}
+          size={+data.grid}
+          spacing={+data.spacing}
+          seed={+data.seed}
+          goal={+data.goal}
+          mode={data.mode}
+        />,
         document.getElementById("graff-view")
       );
     }

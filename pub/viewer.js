@@ -255,6 +255,29 @@ var drawHeader = function drawHeader(svg, rest) {
   });
 };
 
+var toggleButton = function toggleButton(svg, t, rule) {
+  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+    return t();
+  });
+
+  var tex = 'Err';
+  switch (rule) {//text should show the next state
+    case 0:
+      tex = 'Mult';
+      break;
+    case 1:
+      tex = 'Div';
+      break;
+    case 2:
+      tex = 'Add';
+      break;
+  }
+
+  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
+    return t();
+  });
+};
+
 var endScreen = function endScreen(svg, props, lose) {
   var boardsize = props.boardsize;
   var scale = boardsize / 500;
@@ -294,6 +317,7 @@ exports.drawScore = drawScore;
 exports.drawHeader = drawHeader;
 exports.endScreen = endScreen;
 exports.drawAdd = drawAdd;
+exports.toggleButton = toggleButton;
 
 },{}],3:[function(require,module,exports){
 "use strict";
@@ -472,14 +496,6 @@ window.exports.viewer = (function () {
       var Game = React.createClass({
         displayName: "Game",
 
-        /*getDefaultProps: function () {
-          return {
-            //size: 4,
-            startTiles: 2,
-            //boardsize: 500,
-          };
-        },*/
-
         save: function save(st) {
           window.localStorage.setItem("gameState", JSON.stringify(st));
           var bs = window.localStorage.getItem("bestScore");
@@ -510,6 +526,16 @@ window.exports.viewer = (function () {
           this.setup();
         },
 
+        toggle: function toggle() {
+          this.setState(function (previousState, currentProps) {
+            var t = ++previousState.rule;
+            if (t > 2) {
+              t = 0;
+            }
+            return { rule: t };
+          });
+        },
+
         keepPlaying: function keepPlaying() {
           this.setState(function (previousState, currentProps) {
             return { keepPlaying: true };
@@ -534,7 +560,8 @@ window.exports.viewer = (function () {
                 score: prevState.score,
                 over: prevState.over,
                 won: prevState.won,
-                keepPlaying: prevState.keepPlaying
+                keepPlaying: prevState.keepPlaying,
+                rule: prevState.rule
               };
             });
           } else {
@@ -544,7 +571,8 @@ window.exports.viewer = (function () {
                 score: 0,
                 over: false,
                 won: false,
-                keepPlaying: false
+                keepPlaying: false,
+                rule: currentProps.mode[2]
               };
             });
             this.addStartTiles();
@@ -552,7 +580,7 @@ window.exports.viewer = (function () {
         },
 
         addStartTiles: function addStartTiles() {
-          for (var i = 0; i < this.props.seed; i++) {
+          for (var i = 0; i < this.props.size / 2; i++) {
             this.addRandomTile();
           }
         },
@@ -560,7 +588,7 @@ window.exports.viewer = (function () {
         addRandomTile: function addRandomTile() {
           this.setState(function (previousState, currentProps) {
             if (previousState.grid.cellsAvailable()) {
-              var value = Math.random() < 0.9 ? 2 : 4;
+              var value = Math.random() < 0.9 ? this.props.seed : this.props.seed * 2;
               var tile = new _grid.Tile(previousState.grid.randomAvailableCell(), value);
 
               previousState.grid.insertTile(tile);
@@ -617,7 +645,6 @@ window.exports.viewer = (function () {
           var moved = false;
 
           this.prepareTiles();
-
           this.setState(function (previousState, currentProps) {
             var newscore = previousState.score;
             var ifwon = previousState.won;
@@ -631,8 +658,8 @@ window.exports.viewer = (function () {
                   var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
 
-                  if (next && next.value === tile.value && !next.mergedFrom) {
-                    var merged = new _grid.Tile(positions.next, tile.value * 2);
+                  if (next && (currentProps.mode[1] || next.value === tile.value) && !next.mergedFrom) {
+                    var merged = new _grid.Tile(positions.next, self.calculate(tile.value, next.value, previousState.rule));
                     merged.mergedFrom = [tile, next];
 
                     previousState.grid.insertTile(merged);
@@ -668,6 +695,25 @@ window.exports.viewer = (function () {
               } else return {};
             });
           }
+        },
+
+        calculate: function calculate(tval, nval, rule) {
+          var ret;
+          switch (rule) {
+            case 0:
+              //addition
+              ret = tval + nval;
+              break;
+            case 1:
+              //multiplication
+              ret = tval * nval;
+              break;
+            case 2:
+              //division
+              ret = tval > nval ? tval / nval : nval / tval;
+              break;
+          }
+          return ret;
         },
 
         getVector: function getVector(direction) {
@@ -741,13 +787,9 @@ window.exports.viewer = (function () {
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart);
           window.addEventListener("keydown", this.handleMove);
-          this.save({
-            grid: this.state.grid.serialize(),
-            score: this.state.score,
-            over: this.state.over,
-            won: this.state.won,
-            keepPlaying: this.state.keepPlaying
-          });
+          if (this.props.mode[0]) {
+            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
+          }
         },
 
         componentWillUnmount: function componentWillUnmount() {
@@ -755,7 +797,10 @@ window.exports.viewer = (function () {
         },
 
         componentDidUpdate: function componentDidUpdate() {
-          var element = ReactDOM.findDOMNode(this);
+          var element = d3.select(ReactDOM.findDOMNode(this));
+          if (this.props.mode[0]) {
+            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, this.state.rule);
+          }
           //use D3 to update the foreground here
           if (this.state.over) {
             this.clearGame();
@@ -769,7 +814,8 @@ window.exports.viewer = (function () {
               score: this.state.score,
               over: this.state.over,
               won: this.state.won,
-              keepPlaying: this.state.keepPlaying
+              keepPlaying: this.state.keepPlaying,
+              rule: this.state.rule
             });
           }
           return React.createElement(
@@ -876,7 +922,7 @@ window.exports.viewer = (function () {
         },
 
         shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
-          if (nextProps.grid && this.props !== nextProps) {
+          if (nextProps.grid) {
             return true;
           } else {
             return false;
@@ -901,7 +947,14 @@ window.exports.viewer = (function () {
           return React.createElement("g", { className: "tile-container" });
         }
       });
-      ReactDOM.render(React.createElement(Game, { boardsize: +data.size, size: +data.grid, spacing: +data.spacing, seed: +data.seed, goal: +data.goal }), document.getElementById("graff-view"));
+      ReactDOM.render(React.createElement(Game, {
+        boardsize: +data.size,
+        size: +data.grid,
+        spacing: +data.spacing,
+        seed: +data.seed,
+        goal: +data.goal,
+        mode: data.mode
+      }), document.getElementById("graff-view"));
     }
     return;
   }

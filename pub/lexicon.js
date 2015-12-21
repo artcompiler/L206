@@ -5,4 +5,5 @@ exports.globalLexicon = {
     "spacing" : { "tk": 0x01, "name": "SPACING", "cls": "function", "length": 2, "arity": 2 },
     "goal" : { "tk": 0x01, "name": "GOAL", "cls": "function", "length": 2, "arity": 2 },
     "seed" : { "tk": 0x01, "name": "SEED", "cls": "function", "length": 2, "arity": 2 },
+    "mode" : { "tk": 0x01, "name": "MODE", "cls": "function", "length": 2, "arity": 2 },
 }
