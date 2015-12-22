@@ -97,7 +97,7 @@ let translate = (function() {
       size: 500,
       spacing: 15,
       goal: 2048,
-      seed: 2,
+      seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
     });
   };
@@ -143,13 +143,25 @@ let translate = (function() {
   };
 
   function seed(node, options, resume) {
-    let params = {
-      op: "positive",
-      prop: "seed"
-    };
-    set(node, options, function (err, val) {
-      resume([].concat(err), val);
-    }, params);
+    visit(node.elts[1], options, function (err2, val2) {
+      if(val2 instanceof Array && val2.length){
+        if(!val2.every(function (element, index, array) {
+          return !isNaN(element);
+        })){
+          err2 = err2.concat(error("All given values must be numbers.", node.elts[1]));
+        }
+      } else if(isNaN(val2)){
+        err2 = err2.concat(error("Please provide a number or array of numbers.", node.elts[1]));
+      }
+      let params = {
+        op: "default",
+        prop: "seed",
+        val: val2
+      };
+      set(node, options, function (err1, val1) {
+        resume([].concat(err1).concat(err2), val1);
+      }, params);
+    });
   };
 
   function mode(node, options, resume) {

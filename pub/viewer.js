@@ -601,7 +601,7 @@ window.exports.viewer = (function () {
         addRandomTile: function addRandomTile() {
           this.setState(function (previousState, currentProps) {
             if (previousState.grid.cellsAvailable()) {
-              var value = Math.random() < 0.9 ? this.props.seed : this.props.seed * 2;
+              var value = +this.props.seed[Math.floor(Math.random() * this.props.seed.length)];
               var tile = new _grid.Tile(previousState.grid.randomAvailableCell(), value);
 
               previousState.grid.insertTile(tile);
@@ -972,7 +972,7 @@ window.exports.viewer = (function () {
         boardsize: +data.size,
         size: +data.grid,
         spacing: +data.spacing,
-        seed: +data.seed,
+        seed: data.seed,
         goal: +data.goal,
         mode: data.mode
       }), document.getElementById("graff-view"));
