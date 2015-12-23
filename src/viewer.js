@@ -110,7 +110,6 @@ window.exports.viewer = (function () {
           this.setState(function(previousState, currentProps) {
             if(previousState.grid.cellsAvailable()) {
               var value = +this.props.seed[Math.floor(Math.random()*this.props.seed.length)];
-              console.log(value);
               var tile = new Tile(previousState.grid.randomAvailableCell(), value);
 
               previousState.grid.insertTile(tile);
@@ -180,7 +179,7 @@ window.exports.viewer = (function () {
                   var positions = self.findFarthestPosition(cell, vector, previousState.grid);
                   var next = previousState.grid.cellContent(positions.next);
                   var mval = self.calculate(tile.value, next, previousState.rule, currentProps.mode[1]);
-                  if(!isNaN(mval)) {
+                  if(!isNaN(mval) && !next.mergedFrom) {
                     var merged = new Tile(positions.next, mval);
                     merged.mergedFrom = [tile, next];
 
@@ -210,7 +209,7 @@ window.exports.viewer = (function () {
           if(moved) {
             this.addRandomTile();
             this.setState(function(previousState, currentProps) {
-              if(!(previousState.grid.cellsAvailable() || this.tileMatchesAvailable(previousState.grid))) {
+              if(!(previousState.grid.cellsAvailable() || this.tileMatchesAvailable(previousState.grid, previousState.rule, currentProps.mode[1]))) {
                 return {over: true};
               } else return {};
             });
@@ -219,22 +218,30 @@ window.exports.viewer = (function () {
 
         calculate: function (tval, next, rule, any) {
           var ret = undefined;
-          if(next && !next.mergedFrom){
+          if(next){
             var nval = next.value;
-            if(any || tval === nval || rule === 2)
             switch(rule){
               case 0://addition
-                ret = tval + nval;
+                if(any || tval === nval){ret = tval + nval;}
                 break;
               case 1: //multiplication
-                ret = tval * nval;
+                if(any || tval === nval){ret = tval * nval;}
                 break;
               case 2: //division
                 ret = (tval > nval) ? tval / nval : nval / tval;
                 if(ret !== Math.floor(ret)){ret = undefined;}
                 break;
-              case 3: //fibb
-
+              case 3: //threes
+                if((tval === nval && tval + nval >= 6) || tval + nval === 3){ret = tval + nval;}
+                break;//no further checks needed, assuming a proper seed
+              case 4: //fibb
+                ret = tval + nval;
+                var test1 = Math.floor(Math.sqrt(5*ret*ret + 4));//one of these needs to be a perfect square
+                var test2 = Math.floor(Math.sqrt(5*ret*ret - 4));//this is the check for if it's a fibonacci number
+                if(test1*test1 !== 5*ret*ret + 4 && test2*test2 !== 5*ret*ret - 4){
+                  ret = undefined;
+                }
+                break;
             }
           }
           return ret;
@@ -279,7 +286,8 @@ window.exports.viewer = (function () {
           };
         },
 
-        tileMatchesAvailable: function (grid) {
+        tileMatchesAvailable: function (grid, rule, any) {
+          var self = this;
           var tile;
 
           for (var x = 0; x < this.props.size; x++) {
@@ -292,9 +300,8 @@ window.exports.viewer = (function () {
                   var cell = { x: x + vector.x, y: y + vector.y };
 
                   var other = grid.cellContent(cell);
-
-                  if (other && other.value === tile.value) {
-                    return true;
+                  if (!isNaN(self.calculate(tile.value, other, rule, any))){
+                    return true;//can't just check for equality
                   }
                 }
               }
