@@ -188,7 +188,7 @@ var drawGrid = function drawGrid(svg, gridsize, boardsize, gridspacing) {
 //border radius 3 pixels
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
-var addTile = function addTile(svg, tile, gridsize, boardsize, gridspacing) {
+var addTile = function addTile(svg, tile, gridsize, boardsize, gridspacing, color) {
   var tilesize = (boardsize - gridspacing * (gridsize + 1)) / gridsize;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
@@ -199,19 +199,21 @@ var addTile = function addTile(svg, tile, gridsize, boardsize, gridspacing) {
   } else {
     if (tile.mergedFrom) {
       tile.mergedFrom.forEach(function (merged) {
-        addTile(svg, merged, gridsize, boardsize, gridspacing);
+        addTile(svg, merged, gridsize, boardsize, gridspacing, color);
       });
     }
     var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing) + tilesize / 2) + ',' + (gridspacing + position.y * (tilesize + gridspacing) + tilesize / 2) + ') scale(0, 0)');
     t.transition().duration(100).attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing)) + ',' + (gridspacing + position.y * (tilesize + gridspacing)) + ')');
   }
-  t.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', colorMap[tile.value] || '#3c3a32');
+  t.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', color(tile.value) || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55 - 10 * (tile.value.toString().length - 2);
   var scale = tilesize / 106.25;
-  t.append('text').attr('x', tilesize / 2 / scale + 'px').attr('y', tilesize / 2 / scale + 'px').attr('fill', tile.value < 8 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr("transform", 'scale(' + scale + ', ' + scale + ')').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
+  var rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color(tile.value));
+  var l = 0.2126 * parseInt(rgb[1], 16) + 0.7152 * parseInt(rgb[2], 16) + 0.0722 * parseInt(rgb[3], 16);
+  t.append('text').attr('x', tilesize / 2 / scale + 'px').attr('y', tilesize / 2 / scale + 'px').attr('fill', l > 215 ? '#776e65' : '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr("transform", 'scale(' + scale + ', ' + scale + ')').style('font-family', font).style('cursor', 'default').style('font-size', fontsize + 'px').style('font-weight', 'bold').text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
   //set up a transition to fade in for new tiles
@@ -499,6 +501,7 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
     var data = JSON.parse(obj).data;
+    var color = d3.scale.log().base(2).domain([Math.min.apply(Math, data.seed), data.goal]).range(data.tilecolor).interpolate(d3.interpolateLab);
     if (data.play === true) {
       //react stuff starts here
       var Game = React.createClass({
@@ -952,7 +955,7 @@ window.exports.viewer = (function () {
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if (cell) {
-                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
+                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
                 }
               });
             });
@@ -975,7 +978,7 @@ window.exports.viewer = (function () {
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if (cell) {
-                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
+                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
               }
             });
           });
@@ -991,8 +994,7 @@ window.exports.viewer = (function () {
         spacing: +data.spacing,
         seed: data.seed,
         goal: +data.goal,
-        mode: data.mode
-      }), document.getElementById("graff-view"));
+        mode: data.mode }), document.getElementById("graff-view"));
     }
     return;
   }

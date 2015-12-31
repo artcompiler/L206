@@ -84,9 +84,61 @@ let translate = (function() {
             if(val){val[params.prop] = +val2;}
             err = err.concat(err2);
           });
+        } else if(params.op && params.op === "color"){
+          visit(node.elts[1], params, function (err2, val2) {
+            if(!(val2 instanceof Array)){
+              err2 = err2.concat(error("Please provide a valid array of colors.", node.elts[1]));
+            } else {
+              var ret = [];
+              val2.forEach(function (element, index, array){
+                if(typeof element === "string" && /^#[0-9A-F]{6}$/i.test(element)){
+                  ret = ret.concat(element)
+                } else if(!isNaN(element.r) && !isNaN(element.g) && !isNaN(element.b)){
+                  var r = element.r.toString(16);
+                  r = r.length == 1 ? "0" + r : r;
+                  var g = element.g.toString(16);
+                  g = g.length == 1 ? "0" + g : g;
+                  var b = element.b.toString(16);
+                  b = b.length == 1 ? "0" + b : b;
+                  ret = ret.concat("#"+r+g+b);
+                } else {
+                  err2 = err2.concat(error("Index" + index + " is not a valid hex string or rgb color.", node.elts[1]));
+                }
+              });
+            }
+            val[params.prop] = ret;
+            err = err.concat(err2);
+          });
         }
       }
       resume([].concat(err), val);
+    });
+  };
+
+  function rgb(node, options, resume){
+    let ret = {
+      r: 0,
+      g: 0,
+      b: 0,
+    };
+    visit(node.elts[0], options, function (err1, val1) {//b
+      if(isNaN(val1) || val1 < 0 || +val1 > 255){
+        err1 = err1.concat(error("Argument must be between 0 and 255.", node.elts[0]));
+      }
+      ret.b = +val1;
+      visit(node.elts[1], options, function (err2, val2) {//g
+        if(isNaN(val2) || val2 < 0 || +val2 > 255){
+          err2 = err2.concat(error("Argument must be between 0 and 255.", node.elts[1]));
+        }
+        ret.g = +val2;
+        visit(node.elts[2], options, function (err3, val3) {//r
+          if(isNaN(val3) || val3 < 0 || +val3 > 255){
+            err3 = err3.concat(error("Argument must be between 0 and 255.", node.elts[2]));
+          }
+          ret.r = +val3;
+          resume([].concat(err1).concat(err2).concat(err3), ret);
+        });
+      });
     });
   };
 
@@ -99,6 +151,7 @@ let translate = (function() {
       goal: 2048,
       seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
+      tilecolor: ['#eee4da', '#edc22e']
     });
   };
 
@@ -150,8 +203,11 @@ let translate = (function() {
         })){
           err2 = err2.concat(error("All given values must be numbers.", node.elts[1]));
         }
-      } else if(isNaN(val2)){
-        err2 = err2.concat(error("Please provide a number or array of numbers.", node.elts[1]));
+      } else {
+        if(isNaN(val2)){
+          err2 = err2.concat(error("Please provide a number or array of numbers.", node.elts[1]));
+        }
+        val2 = [val2];
       }
       let params = {
         op: "default",
@@ -206,6 +262,26 @@ let translate = (function() {
     });
   };
 
+  function round(node, options, resume) {
+    let params = {
+      op: "positive",
+      prop: "round"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function tilecolor(node, options, resume) {
+    let params = {
+      op: "color",
+      prop: "tilecolor"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
@@ -222,6 +298,9 @@ let translate = (function() {
     "GOAL" : goal,
     "SEED" : seed,
     "MODE" : mode,
+    "ROUND" : round,
+    "TILECOLOR" : tilecolor,
+    "RGB" : rgb,
   }
   return translate;
 })();

@@ -9,6 +9,10 @@ import * as ReactDOM from "react-dom";
 window.exports.viewer = (function () {
   function update(el, obj, src, pool) {
     var data = JSON.parse(obj).data;
+    let color = d3.scale.log().base(2)
+      .domain([Math.min.apply(Math, data.seed), data.goal])
+      .range(data.tilecolor)
+      .interpolate(d3.interpolateLab);
     if(data.play === true){
       //react stuff starts here
       var Game = React.createClass({
@@ -444,7 +448,7 @@ window.exports.viewer = (function () {
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if(cell) {
-                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
+                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
                 }
               });
             });
@@ -468,7 +472,7 @@ window.exports.viewer = (function () {
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if(cell) {
-                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing);
+                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
               }
             });
           });
@@ -488,8 +492,7 @@ window.exports.viewer = (function () {
           spacing={+data.spacing}
           seed={data.seed}
           goal={+data.goal}
-          mode={data.mode}
-        />,
+          mode={data.mode}/>,
         document.getElementById("graff-view")
       );
     }
