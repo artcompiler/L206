@@ -318,7 +318,7 @@ window.exports.viewer = (function () {
         componentDidMount: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
           window.addEventListener("keydown", this.handleMove);
           if(this.props.mode[0]){
@@ -382,7 +382,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
-          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
+          var loc = D3Test.drawScore(element, this.props);
           if (difference > 0){
             //add a function for the score addition transition
             D3Test.drawAdd(element, difference, loc);
@@ -393,7 +393,7 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g')
             .remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
+          D3Test.drawScore(element, this.props);
         },
 
         render: function () {
@@ -448,7 +448,7 @@ window.exports.viewer = (function () {
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if(cell) {
-                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
+                  D3Test.addTile(element, cell, ac, color);
                 }
               });
             });
@@ -472,7 +472,7 @@ window.exports.viewer = (function () {
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if(cell) {
-                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
+                D3Test.addTile(element, cell, ac, color);
               }
             });
           });

@@ -155,31 +155,21 @@ Object.defineProperty(exports, "__esModule", {
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 
-var colorMap = {
-  2: '#eee4da',
-  4: '#ede0c8',
-  8: '#f2b179',
-  16: '#f59563',
-  32: '#f67c5f',
-  64: '#f65e3b',
-  128: '#edcf72',
-  256: '#edcc61',
-  512: '#edc850',
-  1024: '#edc53f',
-  2048: '#edc22e'
-};
-
-//if undefined use #3c3a32
 var round = 3;
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 //let tilesize = (boardsize - gridspacing*(gridsize+1))/gridsize;
 
-var drawGrid = function drawGrid(svg, gridsize, boardsize, gridspacing) {
-  var tilesize = (boardsize - gridspacing * (gridsize + 1)) / gridsize;
-  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', '#bbada0');
-  for (var x = 0; x < gridsize; x++) {
-    for (var y = 0; y < gridsize; y++) {
-      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', gridspacing + x * (tilesize + gridspacing)).attr('y', gridspacing + y * (tilesize + gridspacing)).attr('fill', 'rgba(238, 228, 218, 0.35)');
+//gridsize = props.size
+//boardsize = props.boardsize
+//gridspacing = props.spacing
+//certain things would still be separate, but that's probably acceptable given they're small in number.
+
+var drawGrid = function drawGrid(svg, props) {
+  var tilesize = (props.boardsize - props.spacing * (props.size + 1)) / props.size;
+  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', '#bbada0');
+  for (var x = 0; x < props.size; x++) {
+    for (var y = 0; y < props.size; y++) {
+      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', props.spacing + x * (tilesize + props.spacing)).attr('y', props.spacing + y * (tilesize + props.spacing)).attr('fill', 'rgba(238, 228, 218, 0.35)');
     }
   }
 };
@@ -188,22 +178,22 @@ var drawGrid = function drawGrid(svg, gridsize, boardsize, gridspacing) {
 //border radius 3 pixels
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
-var addTile = function addTile(svg, tile, gridsize, boardsize, gridspacing, color) {
-  var tilesize = (boardsize - gridspacing * (gridsize + 1)) / gridsize;
+var addTile = function addTile(svg, tile, props, color) {
+  var tilesize = (props.boardsize - props.spacing * (props.size + 1)) / props.size;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
   if (tile.previousPosition) {
-    var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing)) + ',' + (gridspacing + position.y * (tilesize + gridspacing)) + ')');
-    t.transition().duration(100).attr("transform", 'translate(' + (gridspacing + tile.x * (tilesize + gridspacing)) + ',' + (gridspacing + tile.y * (tilesize + gridspacing)) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing)) + ',' + (props.spacing + position.y * (tilesize + props.spacing)) + ')');
+    t.transition().duration(100).attr("transform", 'translate(' + (props.spacing + tile.x * (tilesize + props.spacing)) + ',' + (props.spacing + tile.y * (tilesize + props.spacing)) + ')');
   } else {
     if (tile.mergedFrom) {
       tile.mergedFrom.forEach(function (merged) {
-        addTile(svg, merged, gridsize, boardsize, gridspacing, color);
+        addTile(svg, merged, props, color);
       });
     }
-    var t = svg.append('g').attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing) + tilesize / 2) + ',' + (gridspacing + position.y * (tilesize + gridspacing) + tilesize / 2) + ') scale(0, 0)');
-    t.transition().duration(100).attr("transform", 'translate(' + (gridspacing + position.x * (tilesize + gridspacing)) + ',' + (gridspacing + position.y * (tilesize + gridspacing)) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing) + tilesize / 2) + ',' + (props.spacing + position.y * (tilesize + props.spacing) + tilesize / 2) + ') scale(0, 0)');
+    t.transition().duration(100).attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing)) + ',' + (props.spacing + position.y * (tilesize + props.spacing)) + ')');
   }
   t.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', color(tile.value) || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
@@ -225,27 +215,27 @@ var drawAdd = function drawAdd(svg, diff, loc) {
   svg.append('text').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0).remove();
 };
 
-var drawScore = function drawScore(svg, score, best, boardsize) {
+var drawScore = function drawScore(svg, props) {
   var g = svg.append('g');
   //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
   //25 on each side, height 55
   //font-size 13px, color #eee4da
   var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(best);
+  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.best);
   var tb = tex.node().getBBox();
-  rec.attr('x', boardsize - (50 + tb.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
-  tex.attr('x', boardsize - (50 + tb.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
-  g.append('text').attr('x', boardsize - (50 + tb.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
+  rec.attr('x', props.boardsize - (50 + tb.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
+  tex.attr('x', props.boardsize - (50 + tb.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', props.boardsize - (50 + tb.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
   rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(score);
+  tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.score);
   var ts = tex.node().getBBox();
-  rec.attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + ts.width + 'px');
-  tex.attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
-  g.append('text').attr('x', boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
-  return boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2; //score position
+  rec.attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + ts.width + 'px');
+  tex.attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
+  return props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2; //score position
 };
 
-var drawHeader = function drawHeader(svg, rest, cl) {
+var drawHeader = function drawHeader(svg, rest, cl, props) {
   svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
 
   svg.append('rect').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
@@ -265,7 +255,7 @@ var drawHeader = function drawHeader(svg, rest, cl) {
   });
 };
 
-var toggleButton = function toggleButton(svg, t, rule) {
+var toggleButton = function toggleButton(svg, t, rule, props) {
   svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return t();
   });
@@ -825,7 +815,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props.size, this.props.boardsize, this.props.spacing);
+          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
           D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
           window.addEventListener("keydown", this.handleMove);
           if (this.props.mode[0]) {
@@ -894,7 +884,7 @@ window.exports.viewer = (function () {
           var difference = this.props.score - prevProps.score;
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
-          var loc = D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
+          var loc = D3Test.drawScore(element, this.props);
           if (difference > 0) {
             //add a function for the score addition transition
             D3Test.drawAdd(element, difference, loc);
@@ -904,7 +894,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
-          D3Test.drawScore(element, this.props.score || 0, this.props.best || 0, this.props.boardsize);
+          D3Test.drawScore(element, this.props);
         },
 
         render: function render() {
@@ -955,7 +945,7 @@ window.exports.viewer = (function () {
             this.props.grid.cells.forEach(function (column) {
               column.forEach(function (cell) {
                 if (cell) {
-                  D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
+                  D3Test.addTile(element, cell, ac, color);
                 }
               });
             });
@@ -978,7 +968,7 @@ window.exports.viewer = (function () {
           this.props.grid.cells.forEach(function (column) {
             column.forEach(function (cell) {
               if (cell) {
-                D3Test.addTile(element, cell, ac.size, ac.boardsize, ac.spacing, color);
+                D3Test.addTile(element, cell, ac, color);
               }
             });
           });
