@@ -236,21 +236,26 @@ var drawScore = function drawScore(svg, props) {
 };
 
 var drawHeader = function drawHeader(svg, rest, cl, props) {
-  svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text("2048");
+  var y = 0;
 
-  svg.append('rect').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  if (props.title) {
+    var ttl = svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text(props.title.label);
+    y += 5 + ttl.node().getBBox().height;
+  }
+
+  svg.append('rect').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return rest();
   });
 
-  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
+  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
     return rest();
   });
 
-  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return cl();
   });
 
-  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
+  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
     return cl();
   });
 };
@@ -816,11 +821,13 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if (this.props.mode[0]) {
             D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
           }
+          var heading = element.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);
         },
 
         componentWillUnmount: function componentWillUnmount() {
@@ -858,7 +865,7 @@ window.exports.viewer = (function () {
               React.createElement(
                 "g",
                 { className: "heading" },
-                React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize })
+                this.props.score ? React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null)
               )
             ),
             React.createElement("br", null),
@@ -895,6 +902,8 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
           D3Test.drawScore(element, this.props);
+          var heading = d3.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);
         },
 
         render: function render() {
@@ -984,7 +993,10 @@ window.exports.viewer = (function () {
         spacing: +data.spacing,
         seed: data.seed,
         goal: +data.goal,
-        mode: data.mode }), document.getElementById("graff-view"));
+        mode: data.mode,
+        title: data.title,
+        description: data.description,
+        score: data.score }), document.getElementById("graff-view"));
     }
     return;
   }

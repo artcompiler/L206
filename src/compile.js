@@ -69,6 +69,14 @@ let translate = (function() {
     }
   };
 
+  function binding(node, options, resume) {
+    visit(node.elts[0], options, function (err1, val1) {
+      visit(node.elts[1], options, function (err2, val2) {
+        resume([].concat(err1).concat(err2), {key: val1, val: val2});
+      });
+    });
+  };
+
   function set(node, options, resume, params){
     visit(node.elts[0], options, function (err, val) {
       if(typeof val !== "object" || !val || val.play !== true){
@@ -107,6 +115,11 @@ let translate = (function() {
               });
             }
             val[params.prop] = ret;
+            err = err.concat(err2);
+          });
+        } else if(params.op && params.op === "string"){
+          visit(node.elts[1], params, function (err2, val2) {
+            val[params.prop] = {label: val2};
             err = err.concat(err2);
           });
         }
@@ -282,11 +295,90 @@ let translate = (function() {
     }, params);
   };
 
+  function style(node, options, resume) {
+    visit(node.elts[1], options, function (err2, val2){//array of key value objects
+      //first, check to make sure it IS an array of key value objects
+      if(val2 instanceof Array && val2.length){
+        //if so, forEach it
+        visit(node.elts[0], options, function (err1, val1){
+          if(typeof val1 !== "object" || !val1 || val1.play !== true){
+            err1 = err1.concat(error("Argument Data invalid.", node.elts[0]));
+          } else {
+            val2.forEach(function (element, index, array) {
+              if(element.key && element.val){
+                //within that loop, check through the list of possible objects
+                //if found, check if object[key] is defined
+                //if not, object[key] = value
+                if(val1.title){
+                  if(!val1.title[element.key]){
+                    val1.title[element.key] = element.val;
+                  }
+                }
+                if(val1.description){
+                  if(!val1.description[element.key]){
+                    val1.description[element.key] = element.val;
+                  }
+                }
+                if(val1.score){
+                  if(!val1.score[element.key]){
+                    val1.score[element.key] = element.val;
+                  }
+                }
+              } else {
+                err2 = err2.concat(error("Index " + index + " is an invalid object.", node.elts[1]));
+              }
+            });
+          }
+          resume([].concat(err1).concat(err2), val1);
+        });
+      } else {
+        err2 = err2.concat(error("Invalid parameters.", node.elts[1]));
+        resume([].concat(err2), val2);
+      }
+    });
+  };
+
+  function title(node, options, resume) {
+    let params = {
+      op: "string",
+      prop: "title"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function description(node, options, resume) {
+    let params = {
+      op: "string",
+      prop: "description"
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function score(node, options, resume){
+    let params = {
+      op: "default",
+      prop: "score",
+      val: {label: true}
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function button(node, options, resume){
+
+  };
+
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
     "RECORD" : exprs,
     "LIST" : exprs,
+    "BINDING" : binding,
     "NUM": num,
     "STR": num,
     "BOOL": num,
@@ -301,6 +393,11 @@ let translate = (function() {
     "ROUND" : round,
     "TILECOLOR" : tilecolor,
     "RGB" : rgb,
+    "STYLE" : style,
+    "TITLE" : title,
+    "DESCRIPTION" : description,
+    "SCORE" : score,
+    "BUTTON" : button,
   }
   return translate;
 })();

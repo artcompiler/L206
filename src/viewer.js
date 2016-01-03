@@ -319,11 +319,13 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest);
+          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if(this.props.mode[0]){
             D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
           }
+          var heading = element.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);
         },
 
         componentWillUnmount: function () {
@@ -358,7 +360,7 @@ window.exports.viewer = (function () {
             <div>
               <svg width={this.props.boardsize+'px'} className='gcontainer'>
                 <g className='heading'>
-                  <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/>
+                  {this.props.score ? <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
                 </g>
               </svg><br></br>
               <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
@@ -394,6 +396,8 @@ window.exports.viewer = (function () {
           element.selectAll('g')
             .remove();
           D3Test.drawScore(element, this.props);
+          var heading = d3.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);
         },
 
         render: function () {
@@ -492,7 +496,10 @@ window.exports.viewer = (function () {
           spacing={+data.spacing}
           seed={data.seed}
           goal={+data.goal}
-          mode={data.mode}/>,
+          mode={data.mode}
+          title={data.title}
+          description={data.description}
+          score={data.score}/>,
         document.getElementById("graff-view")
       );
     }

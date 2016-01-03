@@ -9,4 +9,9 @@ exports.globalLexicon = {
     "rounding" : { "tk": 0x01, "name": "ROUND", "cls": "function", "length": 2, "arity": 2 },
     "tilecolor" : { "tk": 0x01, "name": "TILECOLOR", "cls": "function", "length": 2, "arity": 2 },
     "rgb" : { "tk": 0x01, "name": "RGB", "cls": "function", "length": 3, "arity": 3 },
+    "style" : { "tk": 0x01, "name": "STYLE", "cls": "function", "length": 2, "arity": 2},
+    "title" : { "tk": 0x01, "name": "TITLE", "cls": "function", "length": 2, "arity": 2},
+    "description" : { "tk": 0x01, "name": "DESCRIPTION", "cls": "function", "length": 2, "arity": 2},
+    "score" : { "tk": 0x01, "name": "SCORE", "cls": "function", "length": 1, "arity": 1},
+    "button" : { "tk": 0x01, "name": "BUTTON", "cls": "function", "length": 2, "arity": 2},
 }
