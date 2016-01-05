@@ -319,13 +319,13 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest, this.props);
+          D3Test.drawHeader(element.select('div.gcontainer'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if(this.props.mode[0]){
-            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
+            D3Test.toggleButton(element.select('div.gcontainer').select('svg.buttons'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
           }
-          var heading = element.select('svg.gcontainer');
-          heading.attr('height', heading.node().getBBox().height + 5);
+          /*var heading = element.select('div.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);*/
         },
 
         componentWillUnmount: function () {
@@ -335,7 +335,7 @@ window.exports.viewer = (function () {
         componentDidUpdate: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           if(this.props.mode[0]){
-            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, this.state.rule);
+            D3Test.toggleButton(element.select('div.gcontainer').select('svg.buttons'), this.toggle, this.state.rule);
           }
           //use D3 to update the foreground here
           if(this.state.over){
@@ -358,11 +358,10 @@ window.exports.viewer = (function () {
           }
           return (
             <div>
-              <svg width={this.props.boardsize+'px'} className='gcontainer'>
-                <g className='heading'>
-                  {this.props.score ? <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
-                </g>
-              </svg><br></br>
+              <div style={{'width':this.props.boardsize+'px'}} className='gcontainer'>
+                {this.props.score ? <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
+                <br></br>
+              </div><br></br>
               <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
                 <g className='grid-container'>
                 </g>
@@ -396,14 +395,14 @@ window.exports.viewer = (function () {
           element.selectAll('g')
             .remove();
           D3Test.drawScore(element, this.props);
-          var heading = d3.select('svg.gcontainer');
-          heading.attr('height', heading.node().getBBox().height + 5);
+          /*var heading = d3.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);*/
         },
 
         render: function () {
           return (
-            <g className='scores-container'>
-            </g>
+              <svg className='scores-container'>
+              </svg>
           );
         }
       });

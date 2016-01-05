@@ -221,43 +221,49 @@ var drawScore = function drawScore(svg, props) {
   //25 on each side, height 55
   //font-size 13px, color #eee4da
   var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  var rec2 = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
   var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.best);
   var tb = tex.node().getBBox();
-  rec.attr('x', props.boardsize - (50 + tb.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
-  tex.attr('x', props.boardsize - (50 + tb.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
-  g.append('text').attr('x', props.boardsize - (50 + tb.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
-  rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.score);
-  var ts = tex.node().getBBox();
-  rec.attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + ts.width + 'px');
-  tex.attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
-  g.append('text').attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
-  return props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) / 2; //score position
+  var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.score);
+  var ts = tex2.node().getBBox();
+  rec.attr('x', 10 + (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
+  tex.attr('x', (50 + tb.width) / 2 + 10 + (50 + ts.width) + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', (50 + tb.width) / 2 + 10 + (50 + ts.width) + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('BEST');
+  rec2.attr('x', 0 + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + ts.width + 'px');
+  tex2.attr('x', (50 + ts.width) / 2 + 'px').attr('y', tb.height + 21 + 'px');
+  g.append('text').attr('x', (50 + ts.width) / 2 + 'px').attr('y', 20 + 'px').attr('text-anchor', 'middle').attr('fill', '#eee4da').style('font-family', font).style('font-size', 13 + 'px').text('SCORE');
+  svg.attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width) + 'px').attr('width', g.node().getBBox().width).attr('height', g.node().getBBox().height + 10).style('float', 'right').style('text-align', 'right');
+  return (50 + ts.width) / 2; //score position
 };
 
-var drawHeader = function drawHeader(svg, rest, cl, props) {
+var drawHeader = function drawHeader(div, rest, cl, props) {
   var y = 0;
 
   if (props.title) {
-    var ttl = svg.append('text').attr('y', 66 + 'px').attr('fill', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text(props.title.label);
-    y += 5 + ttl.node().getBBox().height;
+    var head = div.insert('h1', 'svg.scores-container').style('color', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text(props.title.label);
+    head.style('float', 'left').style('display', 'block').style('margin-bottom', 20);
+    //y += 5 + tbox.height;
   }
 
-  svg.append('rect').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  var svg = div.append('svg').attr('class', 'buttons');
+  var g = svg.append('g');
+
+  g.append('rect').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return rest();
   });
 
-  svg.append('text').attr('x', 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
+  g.append('text').attr('x', 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
     return rest();
   });
 
-  svg.append('rect').attr('x', 129 + 5 + 'px').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  g.append('rect').attr('x', 129 + 5 + 'px').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return cl();
   });
 
-  svg.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
+  g.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', y + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
     return cl();
   });
+  svg.attr('width', props.boardsize).attr('height', g.node().getBBox().height * 1.1).style('float', 'right').style('display', 'block');
 };
 
 var toggleButton = function toggleButton(svg, t, rule, props) {
@@ -821,13 +827,13 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
           D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
-          D3Test.drawHeader(element.select('svg.gcontainer').select('g.heading'), this.restart, this.clearBest, this.props);
+          D3Test.drawHeader(element.select('div.gcontainer'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if (this.props.mode[0]) {
-            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
+            D3Test.toggleButton(element.select('div.gcontainer').select('svg.buttons'), this.toggle, isNaN(this.state.rule) ? this.props.mode[2] : this.state.rule);
           }
-          var heading = element.select('svg.gcontainer');
-          heading.attr('height', heading.node().getBBox().height + 5);
+          /*var heading = element.select('div.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);*/
         },
 
         componentWillUnmount: function componentWillUnmount() {
@@ -837,7 +843,7 @@ window.exports.viewer = (function () {
         componentDidUpdate: function componentDidUpdate() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           if (this.props.mode[0]) {
-            D3Test.toggleButton(element.select('svg.gcontainer').select('g.heading'), this.toggle, this.state.rule);
+            D3Test.toggleButton(element.select('div.gcontainer').select('svg.buttons'), this.toggle, this.state.rule);
           }
           //use D3 to update the foreground here
           if (this.state.over) {
@@ -860,13 +866,10 @@ window.exports.viewer = (function () {
             "div",
             null,
             React.createElement(
-              "svg",
-              { width: this.props.boardsize + 'px', className: "gcontainer" },
-              React.createElement(
-                "g",
-                { className: "heading" },
-                this.props.score ? React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null)
-              )
+              "div",
+              { style: { 'width': this.props.boardsize + 'px' }, className: "gcontainer" },
+              this.props.score ? React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null),
+              React.createElement("br", null)
             ),
             React.createElement("br", null),
             React.createElement(
@@ -902,12 +905,12 @@ window.exports.viewer = (function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           element.selectAll('g').remove();
           D3Test.drawScore(element, this.props);
-          var heading = d3.select('svg.gcontainer');
-          heading.attr('height', heading.node().getBBox().height + 5);
+          /*var heading = d3.select('svg.gcontainer');
+          heading.attr('height', heading.node().getBBox().height + 5);*/
         },
 
         render: function render() {
-          return React.createElement("g", { className: "scores-container" });
+          return React.createElement("svg", { className: "scores-container" });
         }
       });
 
