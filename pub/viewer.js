@@ -267,7 +267,7 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
 };
 
 var toggleButton = function toggleButton(svg, t, rule, props) {
-  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('y', 100 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return t();
   });
 
@@ -284,7 +284,7 @@ var toggleButton = function toggleButton(svg, t, rule, props) {
       break;
   }
 
-  svg.append('text').attr('x', (129 + 5) * 2 + 129 / 2 + 'px').attr('y', 120 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
+  svg.append('text').attr('x', (129 + 5) * 2 + 129 / 2 + 'px').attr('y', 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
     return t();
   });
 };
