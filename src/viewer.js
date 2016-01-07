@@ -318,7 +318,7 @@ window.exports.viewer = (function () {
         componentDidMount: function () {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
+          D3Test.drawGrid(element.select('div.game-container').select('svg.game-container').select('g.grid-container'), this.props);
           D3Test.drawHeader(element.select('div.gcontainer'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if(this.props.mode[0]){
@@ -359,15 +359,17 @@ window.exports.viewer = (function () {
           return (
             <div>
               <div style={{'width':this.props.boardsize+'px'}} className='gcontainer'>
-                {this.props.score ? <ScoresContainer score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
+                {this.props.score ? <ScoresContainer style={this.props.score} score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
                 <br></br>
               </div><br></br>
-              <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
-                <g className='grid-container'>
-                </g>
-                <TileContainer grid={this.state.grid} size={this.props.size} boardsize={this.props.boardsize} spacing={this.props.spacing}/>
-                <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} boardsize={this.props.boardsize}/>
-              </svg>
+              <div style={{'width':this.props.boardsize+'px'}} className='game-container'>
+                <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
+                  <g className='grid-container'>
+                  </g>
+                  <TileContainer grid={this.state.grid} size={this.props.size} boardsize={this.props.boardsize} spacing={this.props.spacing}/>
+                  <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} boardsize={this.props.boardsize}/>
+                </svg>
+              </div>
             </div>
           );
         }

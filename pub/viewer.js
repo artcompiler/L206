@@ -222,9 +222,9 @@ var drawScore = function drawScore(svg, props) {
   //font-size 13px, color #eee4da
   var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
   var rec2 = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.best);
+  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').text(props.best);
   var tb = tex.node().getBBox();
-  var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', 'white').style('font-family', font).style('font-size', 25 + 'px').style('font-weight', 'bold').text(props.score);
+  var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').text(props.score);
   var ts = tex2.node().getBBox();
   rec.attr('x', 10 + (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
   tex.attr('x', (50 + tb.width) / 2 + 10 + (50 + ts.width) + 'px').attr('y', tb.height + 21 + 'px');
@@ -238,9 +238,12 @@ var drawScore = function drawScore(svg, props) {
 
 var drawHeader = function drawHeader(div, rest, cl, props) {
   var y = 0;
-
+  /*    .attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white')
+      .style('font-family', props.style['font-family'] || font)
+      .style('font-size', props.style['font-size'] || 25+'px')
+      .style('font-weight', props.style['font-weight'] || 'bold')*/
   if (props.title) {
-    var head = div.insert('h1', 'svg.scores-container').style('color', '#776e65').style('font-family', font).style('font-weight', 'bold').style('font-size', 80 + 'px').text(props.title.label);
+    var head = div.insert('h1', 'svg.scores-container').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').text(props.title.label);
     head.style('float', 'left').style('display', 'block').style('margin-bottom', 20);
     //y += 5 + tbox.height;
   }
@@ -826,7 +829,7 @@ window.exports.viewer = (function () {
         componentDidMount: function componentDidMount() {
           var element = d3.select(ReactDOM.findDOMNode(this));
           //use D3 to draw the background here
-          D3Test.drawGrid(element.select('svg.game-container').select('g.grid-container'), this.props);
+          D3Test.drawGrid(element.select('div.game-container').select('svg.game-container').select('g.grid-container'), this.props);
           D3Test.drawHeader(element.select('div.gcontainer'), this.restart, this.clearBest, this.props);
           window.addEventListener("keydown", this.handleMove);
           if (this.props.mode[0]) {
@@ -868,16 +871,20 @@ window.exports.viewer = (function () {
             React.createElement(
               "div",
               { style: { 'width': this.props.boardsize + 'px' }, className: "gcontainer" },
-              this.props.score ? React.createElement(ScoresContainer, { score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null),
+              this.props.score ? React.createElement(ScoresContainer, { style: this.props.score, score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null),
               React.createElement("br", null)
             ),
             React.createElement("br", null),
             React.createElement(
-              "svg",
-              { width: this.props.boardsize + 'px', height: this.props.boardsize + 'px', cursor: "default", className: "game-container" },
-              React.createElement("g", { className: "grid-container" }),
-              React.createElement(TileContainer, { grid: this.state.grid, size: this.props.size, boardsize: this.props.boardsize, spacing: this.props.spacing }),
-              React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated(), boardsize: this.props.boardsize })
+              "div",
+              { style: { 'width': this.props.boardsize + 'px' }, className: "game-container" },
+              React.createElement(
+                "svg",
+                { width: this.props.boardsize + 'px', height: this.props.boardsize + 'px', cursor: "default", className: "game-container" },
+                React.createElement("g", { className: "grid-container" }),
+                React.createElement(TileContainer, { grid: this.state.grid, size: this.props.size, boardsize: this.props.boardsize, spacing: this.props.spacing }),
+                React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated(), boardsize: this.props.boardsize })
+              )
             )
           );
         }
