@@ -222,9 +222,9 @@ var drawScore = function drawScore(svg, props) {
   //font-size 13px, color #eee4da
   var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
   var rec2 = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').text(props.best);
+  var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text(props.best);
   var tb = tex.node().getBBox();
-  var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').text(props.score);
+  var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text(props.score);
   var ts = tex2.node().getBBox();
   rec.attr('x', 10 + (50 + ts.width) + 'px').attr('height', tb.height + 26 + 'px').attr('width', 50 + tb.width + 'px');
   tex.attr('x', (50 + tb.width) / 2 + 10 + (50 + ts.width) + 'px').attr('y', tb.height + 21 + 'px');
@@ -243,7 +243,7 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
       .style('font-size', props.style['font-size'] || 25+'px')
       .style('font-weight', props.style['font-weight'] || 'bold')*/
   if (props.title) {
-    var head = div.insert('h1', 'svg.scores-container').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').text(props.title.label);
+    var head = div.insert('h1', 'svg.scores-container').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').style('font-style', props.title['font-style'] || 'normal').style('text-decoration', props.title['text-decoration'] || 'none').text(props.title.label);
     head.style('float', 'left').style('display', 'block').style('margin-bottom', 20);
     //y += 5 + tbox.height;
   }
