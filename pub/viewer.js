@@ -243,9 +243,10 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
       .style('font-size', props.style['font-size'] || 25+'px')
       .style('font-weight', props.style['font-weight'] || 'bold')*/
   if (props.title) {
-    var head = div.insert('h1', 'svg.scores-container').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').style('font-style', props.title['font-style'] || 'normal').style('text-decoration', props.title['text-decoration'] || 'none').text(props.title.label);
-    head.style('float', 'left').style('display', 'block').style('margin-bottom', 20);
-    //y += 5 + tbox.height;
+    var head = div.insert('h1', 'svg.scores-container').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').style('font-style', props.title['font-style'] || 'normal').style('text-decoration', props.title['text-decoration'] || 'none').style('float', 'left').style('display', 'block').text(props.title.label);
+  }
+  if (props.desc) {
+    var des = div.append('p').attr('align', 'left').style('color', props.desc['font-color'] || props.desc['color'] || props.desc['fill'] || '#776e65').style('font-family', props.desc['font-family'] || font).style('font-weight', props.desc['font-weight'] || 'normal').style('font-size', props.desc['font-size'] || 18 + 'px').style('font-style', props.desc['font-style'] || 'normal').style('text-decoration', props.desc['text-decoration'] || 'none').style('float', 'left').style('display', 'block').style('width', props.boardsize).text(props.desc.label);
   }
 
   var svg = div.append('svg').attr('class', 'buttons');
@@ -1005,7 +1006,7 @@ window.exports.viewer = (function () {
         goal: +data.goal,
         mode: data.mode,
         title: data.title,
-        description: data.description,
+        desc: data.description,
         score: data.score }), document.getElementById("graff-view"));
     }
     return;

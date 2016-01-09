@@ -499,7 +499,7 @@ window.exports.viewer = (function () {
           goal={+data.goal}
           mode={data.mode}
           title={data.title}
-          description={data.description}
+          desc={data.description}
           score={data.score}/>,
         document.getElementById("graff-view")
       );
