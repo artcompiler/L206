@@ -166,10 +166,10 @@ var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 
 var drawGrid = function drawGrid(svg, props) {
   var tilesize = (props.boardsize - props.spacing * (props.size + 1)) / props.size;
-  svg.append('rect').attr('rx', round * 2).attr('ry', round * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', '#bbada0');
+  svg.append('rect').attr('rx', props.rounding * 2).attr('ry', props.rounding * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', '#bbada0');
   for (var x = 0; x < props.size; x++) {
     for (var y = 0; y < props.size; y++) {
-      svg.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', props.spacing + x * (tilesize + props.spacing)).attr('y', props.spacing + y * (tilesize + props.spacing)).attr('fill', 'rgba(238, 228, 218, 0.35)');
+      svg.append('rect').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', props.spacing + x * (tilesize + props.spacing)).attr('y', props.spacing + y * (tilesize + props.spacing)).attr('fill', 'rgba(238, 228, 218, 0.35)');
     }
   }
 };
@@ -195,7 +195,7 @@ var addTile = function addTile(svg, tile, props, color) {
     var t = svg.append('g').attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing) + tilesize / 2) + ',' + (props.spacing + position.y * (tilesize + props.spacing) + tilesize / 2) + ') scale(0, 0)');
     t.transition().duration(100).attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing)) + ',' + (props.spacing + position.y * (tilesize + props.spacing)) + ')');
   }
-  t.append('rect').attr('rx', round).attr('ry', round).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', color(tile.value) || '#3c3a32');
+  t.append('rect').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', color(tile.value) || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
   //adds 12, adds 11, adds 9, adds 7
   //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
@@ -220,8 +220,8 @@ var drawScore = function drawScore(svg, props) {
   //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
   //25 on each side, height 55
   //font-size 13px, color #eee4da
-  var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
-  var rec2 = g.append('rect').attr('fill', '#bbada0').attr('rx', round).attr('ry', round);
+  var rec = g.append('rect').attr('fill', '#bbada0').attr('rx', props.rounding).attr('ry', props.rounding);
+  var rec2 = g.append('rect').attr('fill', '#bbada0').attr('rx', props.rounding).attr('ry', props.rounding);
   var tex = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text(props.best);
   var tb = tex.node().getBBox();
   var tex2 = g.append('text').attr('text-anchor', 'middle').attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text(props.score);
@@ -246,13 +246,13 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
     var head = div.insert('h1', props.score ? 'svg.scores-container' : 'br').style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65').style('font-family', props.title['font-family'] || font).style('font-weight', props.title['font-weight'] || 'bold').style('font-size', props.title['font-size'] || 80 + 'px').style('font-style', props.title['font-style'] || 'normal').style('text-decoration', props.title['text-decoration'] || 'none').style('float', 'left').style('display', 'block').style('margin-bottom', 20 + 'px').text(props.title.label);
   }
   if (props.desc) {
-    var des = div.append('p').attr('align', 'left').style('color', props.desc['font-color'] || props.desc['color'] || props.desc['fill'] || '#776e65').style('font-family', props.desc['font-family'] || font).style('font-weight', props.desc['font-weight'] || 'normal').style('font-size', props.desc['font-size'] || 18 + 'px').style('font-style', props.desc['font-style'] || 'normal').style('text-decoration', props.desc['text-decoration'] || 'none').style('float', 'left').style('display', 'block').style('width', props.boardsize).text(props.desc.label);
+    var des = div.insert('p', 'br').attr('align', 'left').style('color', props.desc['font-color'] || props.desc['color'] || props.desc['fill'] || '#776e65').style('font-family', props.desc['font-family'] || font).style('font-weight', props.desc['font-weight'] || 'normal').style('font-size', props.desc['font-size'] || 18 + 'px').style('font-style', props.desc['font-style'] || 'normal').style('text-decoration', props.desc['text-decoration'] || 'none').style('float', 'left').style('display', 'block').style('width', props.boardsize).text(props.desc.label);
   }
 
   var svg = div.append('svg').attr('class', 'buttons');
   var g = svg.append('g');
 
-  g.append('rect').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  g.append('rect').attr('y', y + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return rest();
   });
 
@@ -260,7 +260,7 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
     return rest();
   });
 
-  g.append('rect').attr('x', 129 + 5 + 'px').attr('y', y + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  g.append('rect').attr('x', 129 + 5 + 'px').attr('y', y + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return cl();
   });
 
@@ -271,7 +271,7 @@ var drawHeader = function drawHeader(div, rest, cl, props) {
 };
 
 var toggleButton = function toggleButton(svg, t, rule, props) {
-  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', round).attr('ry', round).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return t();
   });
 
@@ -302,7 +302,7 @@ var endScreen = function endScreen(svg, props, lose) {
   if (lose) {
     g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
     g.append('rect').attr('x', 191 + 'px') //half board size - width/2
-    .attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    .attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
     g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
@@ -310,14 +310,14 @@ var endScreen = function endScreen(svg, props, lose) {
     });
   } else {
     g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
-    g.append('rect').attr('x', 129 + 'px').attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    g.append('rect').attr('x', 129 + 'px').attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.restart();
     });
     g.append('text').attr('x', 190 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
       return props.restart();
     });
 
-    g.append('rect').attr('x', 252 + 'px').attr('y', 353 + 'px').attr('rx', round).attr('ry', round).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    g.append('rect').attr('x', 252 + 'px').attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
       return props.keepPlaying();
     });
     g.append('text').attr('x', 310 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
@@ -454,7 +454,7 @@ Grid.prototype.serialize = function () {
 function Tile(position, value) {
   this.x = position.x;
   this.y = position.y;
-  this.value = value || 2;
+  this.value = isNaN(value) ? 2 : value;
 
   this.previousPosition = null;
   this.mergedFrom = null; // Tracks tiles that merged together
@@ -872,7 +872,7 @@ window.exports.viewer = (function () {
             React.createElement(
               "div",
               { style: { 'width': this.props.boardsize + 'px' }, className: "gcontainer" },
-              this.props.score ? React.createElement(ScoresContainer, { style: this.props.score, score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize }) : React.createElement("br", null),
+              this.props.score ? React.createElement(ScoresContainer, { style: this.props.score, score: this.state.score, best: this.bestScore(), boardsize: this.props.boardsize, rounding: this.props.rounding }) : React.createElement("br", null),
               React.createElement("br", null)
             ),
             React.createElement("br", null),
@@ -883,8 +883,8 @@ window.exports.viewer = (function () {
                 "svg",
                 { width: this.props.boardsize + 'px', height: this.props.boardsize + 'px', cursor: "default", className: "game-container" },
                 React.createElement("g", { className: "grid-container" }),
-                React.createElement(TileContainer, { grid: this.state.grid, size: this.props.size, boardsize: this.props.boardsize, spacing: this.props.spacing }),
-                React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated(), boardsize: this.props.boardsize })
+                React.createElement(TileContainer, { grid: this.state.grid, size: this.props.size, boardsize: this.props.boardsize, spacing: this.props.spacing, rounding: this.props.rounding }),
+                React.createElement(GameMessage, { restart: this.restart, keepPlaying: this.keepPlaying, won: this.state.won, over: this.state.over, terminated: this.isGameTerminated(), boardsize: this.props.boardsize, rounding: this.props.rounding })
               )
             )
           );
@@ -1002,6 +1002,7 @@ window.exports.viewer = (function () {
         boardsize: +data.size,
         size: +data.grid,
         spacing: +data.spacing,
+        rounding: +data.round,
         seed: data.seed,
         goal: +data.goal,
         mode: data.mode,

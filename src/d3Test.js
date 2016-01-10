@@ -14,16 +14,16 @@ let font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 let drawGrid = function (svg, props) {
   var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
   svg.append('rect')
-    .attr('rx', round*2)
-    .attr('ry', round*2)
+    .attr('rx', props.rounding*2)
+    .attr('ry', props.rounding*2)
     .attr('width', props.boardsize+'px')
     .attr('height', props.boardsize+'px')
     .attr('fill', '#bbada0');
   for(var x=0; x < props.size; x++){
     for(var y=0; y < props.size; y++){
       svg.append('rect')
-        .attr('rx', round)
-        .attr('ry', round)
+        .attr('rx', props.rounding)
+        .attr('ry', props.rounding)
         .attr('width', tilesize+'px')
         .attr('height', tilesize+'px')
         .attr('x', (props.spacing+(x*(tilesize+props.spacing))))
@@ -61,8 +61,8 @@ let addTile = function (svg, tile, props, color) {
       .attr("transform", 'translate('+(props.spacing+position.x*(tilesize+props.spacing))+','+(props.spacing+position.y*(tilesize+props.spacing))+')');
   }
   t.append('rect')
-    .attr('rx', round)
-    .attr('ry', round)
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding)
     .attr('width', tilesize+'px')
     .attr('height', tilesize+'px')
     .attr('fill', color(tile.value) || '#3c3a32');
@@ -117,12 +117,12 @@ let drawScore = function (svg, props) {
   //font-size 13px, color #eee4da
   var rec = g.append('rect')
     .attr('fill', '#bbada0')
-    .attr('rx', round)
-    .attr('ry', round);
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding);
   var rec2 = g.append('rect')
     .attr('fill', '#bbada0')
-    .attr('rx', round)
-    .attr('ry', round);
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding);
   var tex = g.append('text')
     .attr('text-anchor', 'middle')
     .attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white')
@@ -202,7 +202,7 @@ let drawHeader = function (div, rest, cl, props) {
       .text(props.title.label);
   }
   if(props.desc){
-    var des = div.append('p')
+    var des = div.insert('p', 'br')
       .attr('align', 'left')
       .style('color', props.desc['font-color'] || props.desc['color'] || props.desc['fill'] || '#776e65')
       .style('font-family', props.desc['font-family'] || font)
@@ -221,8 +221,8 @@ let drawHeader = function (div, rest, cl, props) {
 
   g.append('rect')
     .attr('y', y+'px')
-    .attr('rx', round)
-    .attr('ry', round)
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding)
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
@@ -247,8 +247,8 @@ let drawHeader = function (div, rest, cl, props) {
   g.append('rect')
     .attr('x', 129 + 5 + 'px')
     .attr('y', y+'px')
-    .attr('rx', round)
-    .attr('ry', round)
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding)
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
@@ -279,8 +279,8 @@ let drawHeader = function (div, rest, cl, props) {
 let toggleButton = function (svg, t, rule, props){
   svg.append('rect')
     .attr('x', (129 + 5)*2 + 'px')
-    .attr('rx', round)
-    .attr('ry', round)
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding)
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
@@ -343,8 +343,8 @@ let endScreen = function (svg, props, lose) {
     g.append('rect')
       .attr('x', 191+'px')//half board size - width/2
       .attr('y', 353+'px')
-      .attr('rx', round)
-      .attr('ry', round)
+      .attr('rx', props.rounding)
+      .attr('ry', props.rounding)
       .attr('width', 118+'px')
       .attr('height', 40+'px')
       .attr('fill', '#8f7a66')
@@ -378,8 +378,8 @@ let endScreen = function (svg, props, lose) {
     g.append('rect')
       .attr('x', 129+'px')
       .attr('y', 353+'px')
-      .attr('rx', round)
-      .attr('ry', round)
+      .attr('rx', props.rounding)
+      .attr('ry', props.rounding)
       .attr('width', 118+'px')
       .attr('height', 40+'px')
       .attr('fill', '#8f7a66')
@@ -403,8 +403,8 @@ let endScreen = function (svg, props, lose) {
     g.append('rect')
       .attr('x', 252+'px')
       .attr('y', 353+'px')
-      .attr('rx', round)
-      .attr('ry', round)
+      .attr('rx', props.rounding)
+      .attr('ry', props.rounding)
       .attr('width', 120+'px')
       .attr('height', 40+'px')
       .attr('fill', '#8f7a66')

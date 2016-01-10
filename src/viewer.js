@@ -359,15 +359,15 @@ window.exports.viewer = (function () {
           return (
             <div>
               <div style={{'width':this.props.boardsize+'px'}} className='gcontainer'>
-                {this.props.score ? <ScoresContainer style={this.props.score} score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize}/> : <br></br>}
+                {this.props.score ? <ScoresContainer style={this.props.score} score={this.state.score} best={this.bestScore()} boardsize={this.props.boardsize} rounding={this.props.rounding}/> : <br></br>}
                 <br></br>
               </div><br></br>
               <div style={{'width':this.props.boardsize+'px'}} className='game-container'>
                 <svg width={this.props.boardsize+'px'} height={this.props.boardsize+'px'} cursor='default' className='game-container'>
                   <g className='grid-container'>
                   </g>
-                  <TileContainer grid={this.state.grid} size={this.props.size} boardsize={this.props.boardsize} spacing={this.props.spacing}/>
-                  <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} boardsize={this.props.boardsize}/>
+                  <TileContainer grid={this.state.grid} size={this.props.size} boardsize={this.props.boardsize} spacing={this.props.spacing} rounding={this.props.rounding}/>
+                  <GameMessage restart={this.restart} keepPlaying={this.keepPlaying} won={this.state.won} over={this.state.over} terminated={this.isGameTerminated()} boardsize={this.props.boardsize} rounding={this.props.rounding}/>
                 </svg>
               </div>
             </div>
@@ -495,6 +495,7 @@ window.exports.viewer = (function () {
           boardsize={+data.size}
           size={+data.grid}
           spacing={+data.spacing}
+          rounding={+data.round}
           seed={data.seed}
           goal={+data.goal}
           mode={data.mode}
