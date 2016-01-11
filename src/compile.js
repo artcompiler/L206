@@ -161,6 +161,7 @@ let translate = (function() {
       grid: 4,
       size: 500,
       spacing: 15,
+      round: 3,
       goal: 2048,
       seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
