@@ -387,8 +387,8 @@ window.exports.viewer = (function () {
             .remove();
           var loc = D3Test.drawScore(element, this.props);
           if (difference > 0){
-            //add a function for the score addition transition
-            D3Test.drawAdd(element, difference, loc);
+            var c = element.select('g');
+            D3Test.drawAdd(c, difference, loc);
           }
         },
 
@@ -397,8 +397,6 @@ window.exports.viewer = (function () {
           element.selectAll('g')
             .remove();
           D3Test.drawScore(element, this.props);
-          /*var heading = d3.select('svg.gcontainer');
-          heading.attr('height', heading.node().getBBox().height + 5);*/
         },
 
         render: function () {

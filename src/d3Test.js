@@ -115,6 +115,10 @@ let drawScore = function (svg, props) {
   //1 digit: 15.625, 2: 30.328, 3: 45.031, 4: 60
   //25 on each side, height 55
   //font-size 13px, color #eee4da
+  var p = 1;
+  if(props.boardsize < 500){
+    p = props.boardsize/500;
+  }
   var rec = g.append('rect')
     .attr('fill', '#bbada0')
     .attr('rx', props.rounding)
@@ -144,41 +148,42 @@ let drawScore = function (svg, props) {
     .text(props.score);
   var ts = tex2.node().getBBox();
   rec
-    .attr('x', 10 + (50 + ts.width) + 'px')
-    .attr('height', tb.height + 26 + 'px')
-    .attr('width', 50 + tb.width + 'px');
+    .attr('x', 10*p + (50*p + ts.width) + 'px')
+    .attr('height', tb.height + 26*p + 'px')
+    .attr('width', 50*p + tb.width + 'px');
   tex
-    .attr('x', (50 + tb.width)/2 + 10 + (50 + ts.width) + 'px')
-    .attr('y', tb.height + 21 + 'px');
+    .attr('x', (50*p + tb.width)/2 + 10*p + (50*p + ts.width) + 'px')
+    .attr('y', tb.height + 21*p + 'px');
   g.append('text')
-    .attr('x', (50 + tb.width)/2 + 10 + (50 + ts.width) + 'px')
-    .attr('y', 20+'px')
+    .attr('x', (50*p + tb.width)/2 + 10*p + (50*p + ts.width) + 'px')
+    .attr('y', 20*p+'px')
     .attr('text-anchor', 'middle')
     .attr('fill', '#eee4da')
     .style('font-family', font)
-    .style('font-size', 13+'px')
+    .style('font-size', 13*p+'px')
     .text('BEST');
   rec2
     .attr('x', 0 + 'px')
-    .attr('height', tb.height + 26 + 'px')
-    .attr('width', 50 + ts.width + 'px');
+    .attr('height', tb.height + 26*p + 'px')
+    .attr('width', 50*p + ts.width + 'px');
   tex2
-    .attr('x', (50 + ts.width)/2 + 'px')
-    .attr('y', tb.height + 21 + 'px');
+    .attr('x', (50*p + ts.width)/2 + 'px')
+    .attr('y', tb.height + 21*p + 'px');
   g.append('text')
-    .attr('x', (50 + ts.width)/2 + 'px')
-    .attr('y', 20+'px')
+    .attr('x', (50*p + ts.width)/2 + 'px')
+    .attr('y', 20*p+'px')
     .attr('text-anchor', 'middle')
     .attr('fill', '#eee4da')
     .style('font-family', font)
-    .style('font-size', 13+'px')
+    .style('font-size', 13*p+'px')
     .text('SCORE');
   svg
-    .attr('x', props.boardsize - (50 + tb.width) - 10 - (50 + ts.width)+'px')
+    .attr('x', props.boardsize - (50*p + tb.width) - 10*p - (50*p + ts.width)+'px')
     .attr('width', g.node().getBBox().width)
-    .attr('height', g.node().getBBox().height + 10)
+    .attr('height', g.node().getBBox().height + 10*p)
     .style('float', 'right')
     .style('text-align', 'right');
+
   return ((50 + ts.width)/2);//score position
 };
 
@@ -274,6 +279,13 @@ let drawHeader = function (div, rest, cl, props) {
     .attr('height', g.node().getBBox().height*1.1)
     .style('float', 'right')
     .style('display', 'block');
+  if(props.boardsize < 500){
+    var p = props.boardsize/500;
+    g
+      .attr('transform', 'scale('+p+','+p+')');
+    svg
+      .attr('height', g.node().getBBox().height*1.1*p);
+  }
 };
 
 let toggleButton = function (svg, t, rule, props){
