@@ -158,10 +158,10 @@ let translate = (function() {
   function play(node, options, resume) {
     resume([], {
       play: true, 
-      grid: 4,
-      size: 500,
+      size: 4,
+      boardsize: 500,
       spacing: 15,
-      round: 3,
+      rounding: 3,
       goal: 2048,
       seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
@@ -172,7 +172,7 @@ let translate = (function() {
   function grid(node, options, resume) {
     let params = {
       op: "positive",
-      prop: "grid"
+      prop: "size"
     };
     set(node, options, function (err, val) {
       resume([].concat(err), val);
@@ -182,7 +182,7 @@ let translate = (function() {
   function size(node, options, resume) {
     let params = {
       op: "positive",
-      prop: "size"
+      prop: "boardsize"
     };
     set(node, options, function (err, val) {
       resume([].concat(err), val);
@@ -279,7 +279,7 @@ let translate = (function() {
   function round(node, options, resume) {
     let params = {
       op: "positive",
-      prop: "round"
+      prop: "rounding"
     };
     set(node, options, function (err, val) {
       resume([].concat(err), val);
@@ -315,14 +315,14 @@ let translate = (function() {
                     val1.title[element.key] = element.val;
                   }
                 }
-                if(val1.description){
-                  if(!val1.description[element.key]){
-                    val1.description[element.key] = element.val;
+                if(val1.desc){
+                  if(!val1.desc[element.key]){
+                    val1.desc[element.key] = element.val;
                   }
                 }
-                if(val1.score){
-                  if(!val1.score[element.key]){
-                    val1.score[element.key] = element.val;
+                if(val1.scorestyle){
+                  if(!val1.scorestyle[element.key]){
+                    val1.scorestyle[element.key] = element.val;
                   }
                 }
               } else {
@@ -352,7 +352,7 @@ let translate = (function() {
   function description(node, options, resume) {
     let params = {
       op: "string",
-      prop: "description"
+      prop: "desc"
     };
     set(node, options, function (err, val) {
       resume([].concat(err), val);
@@ -362,7 +362,7 @@ let translate = (function() {
   function score(node, options, resume){
     let params = {
       op: "default",
-      prop: "score",
+      prop: "scorestyle",
       val: {label: true}
     };
     set(node, options, function (err, val) {

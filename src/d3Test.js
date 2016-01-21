@@ -12,6 +12,8 @@ let font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 //certain things would still be separate, but that's probably acceptable given they're small in number.
 
 let drawGrid = function (svg, props) {
+  svg.selectAll('rect')
+    .remove();
   var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
   svg.append('rect')
     .attr('rx', props.rounding*2)
@@ -37,7 +39,7 @@ let drawGrid = function (svg, props) {
 //border radius 3 pixels
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
-let addTile = function (svg, tile, props, color) {
+let addTile = function (svg, tile, props) {
   var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
@@ -51,7 +53,7 @@ let addTile = function (svg, tile, props, color) {
   } else {
     if(tile.mergedFrom){
       tile.mergedFrom.forEach(function (merged) {
-        addTile(svg, merged, props, color);
+        addTile(svg, merged, props);
       });
     }
     var t = svg.append('g')
@@ -65,13 +67,13 @@ let addTile = function (svg, tile, props, color) {
     .attr('ry', props.rounding)
     .attr('width', tilesize+'px')
     .attr('height', tilesize+'px')
-    .attr('fill', color(tile.value) || '#3c3a32');
+    .attr('fill', props.color(tile.value) || '#3c3a32');
 //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
 //adds 12, adds 11, adds 9, adds 7
 //55/5 = 11, 45/5 = 9, 35/5 = 7, 65/5 = 13 close enough.
   var fontsize = 55-(10*(tile.value.toString().length-2));
   var scale = tilesize/106.25;
-  var rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(color(tile.value));
+  var rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(props.color(tile.value));
   var l = 0.2126*(parseInt(rgb[1], 16)) + 0.7152*(parseInt(rgb[2], 16)) + 0.0722*(parseInt(rgb[3], 16));
   t.append('text')
     .attr('x', (tilesize/2)/scale + 'px')
@@ -187,14 +189,11 @@ let drawScore = function (svg, props) {
   return ((50 + ts.width)/2);//score position
 };
 
-let drawHeader = function (div, rest, cl, props) {
-  var y = 0;
-/*    .attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white')
-    .style('font-family', props.style['font-family'] || font)
-    .style('font-size', props.style['font-size'] || 25+'px')
-    .style('font-weight', props.style['font-weight'] || 'bold')*/
+let drawHeader = function (div, props) {
   if(props.title){
-    var head = div.insert('h1', props.score ? 'svg.scores-container' : 'br')
+    div.selectAll('h1')
+      .remove();
+    var head = div.insert('h1', 'br')
       .style('color', props.title['font-color'] || props.title['color'] || props.title['fill'] || '#776e65')
       .style('font-family', props.title['font-family'] || font)
       .style('font-weight', props.title['font-weight'] || 'bold')
@@ -207,6 +206,8 @@ let drawHeader = function (div, rest, cl, props) {
       .text(props.title.label);
   }
   if(props.desc){
+    div.selectAll('p')
+      .remove();
     var des = div.insert('p', 'br')
       .attr('align', 'left')
       .style('color', props.desc['font-color'] || props.desc['color'] || props.desc['fill'] || '#776e65')
@@ -215,29 +216,33 @@ let drawHeader = function (div, rest, cl, props) {
       .style('font-size', props.desc['font-size'] || 18+'px')
       .style('font-style', props.desc['font-style'] || 'normal')
       .style('text-decoration', props.desc['text-decoration'] || 'none')
-      .style('float', 'left')
+      .style('float', props.title ? 'left' : 'none')
       .style('display', 'block')
       .style('width', props.boardsize)
       .text(props.desc.label);
   }
+};
 
+let drawButtons = function (div, props){
+  div.selectAll('svg')
+    .remove();
   var svg = div.append('svg').attr('class', 'buttons');
   var g = svg.append('g');
 
   g.append('rect')
-    .attr('y', y+'px')
+    .attr('y', 0+'px')
     .attr('rx', props.rounding)
     .attr('ry', props.rounding)
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
     .on('click', function(d){
-      return rest();
+      return props.restart();
     });
 
   g.append('text')
     .attr('x', 129/2 + 'px')
-    .attr('y', y+20+(22/4)+'px')
+    .attr('y', 0+20+(22/4)+'px')
     .attr('text-anchor', 'middle')
     .attr('fill', '#f9f6f2')
     .style('font-family', font)
@@ -246,24 +251,24 @@ let drawHeader = function (div, rest, cl, props) {
     .style('cursor', 'default')
     .text('New Game')
     .on('click', function(d){
-      return rest();
+      return props.restart();
     });
 
   g.append('rect')
     .attr('x', 129 + 5 + 'px')
-    .attr('y', y+'px')
+    .attr('y', 0+'px')
     .attr('rx', props.rounding)
     .attr('ry', props.rounding)
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
     .on('click', function(d){
-      return cl();
+      return props.clearBest();
     });
 
   g.append('text')
     .attr('x', 129 + 5 + (129/2) + 'px')
-    .attr('y', y+20+(22/4)+'px')
+    .attr('y', 0+20+(22/4)+'px')
     .attr('text-anchor', 'middle')
     .attr('fill', '#f9f6f2')
     .style('font-family', font)
@@ -272,7 +277,7 @@ let drawHeader = function (div, rest, cl, props) {
     .style('cursor', 'default')
     .text("Clear Record")
     .on('click', function(d){
-      return cl();
+      return props.clearBest();
     });
   svg
     .attr('width', props.boardsize)
@@ -446,5 +451,6 @@ export {
   drawHeader,
   endScreen,
   drawAdd,
+  drawButtons,
   toggleButton,
 }

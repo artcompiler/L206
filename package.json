@@ -10,8 +10,7 @@
   "dependencies": {
     "express": "^4.0.x",
     "domready": "^1.0.8",
-    "react": "^0.14.2",
-    "react-dom": "^0.14.2"
+    "react": "^0.14.2"
   },
   "engines": {
     "npm": "latest",
