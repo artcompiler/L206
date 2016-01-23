@@ -293,7 +293,9 @@ let drawButtons = function (div, props){
   }
 };
 
-let toggleButton = function (svg, t, rule, props){
+let toggleButton = function (svg, props){
+  var t = props.toggle;
+  var rule = isNaN(props.rule) ? props.mode[2] : props.rule;
   svg.append('rect')
     .attr('x', (129 + 5)*2 + 'px')
     .attr('rx', props.rounding)

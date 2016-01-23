@@ -281,7 +281,9 @@ var drawButtons = function drawButtons(div, props) {
   }
 };
 
-var toggleButton = function toggleButton(svg, t, rule, props) {
+var toggleButton = function toggleButton(svg, props) {
+  var t = props.toggle;
+  var rule = isNaN(props.rule) ? props.mode[2] : props.rule;
   svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
     return t();
   });
@@ -528,6 +530,12 @@ window.exports.viewer = (function () {
       window.removeEventListener("keydown", this.handleMove);
     },
 
+    componentDidUpdate: function componentDidUpdate() {
+      if (!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)) {
+        this.setup();
+      }
+    },
+
     dispatch: function dispatch(data, reset) {
       if (reset) {
         //replace entirely
@@ -563,6 +571,16 @@ window.exports.viewer = (function () {
       });
     },
 
+    toggle: function toggle() {
+      var t = this.props.rule + 1;
+      if (t > 2) {
+        t = 0;
+      }
+      this.dispatch({
+        rule: t
+      });
+    },
+
     isGameTerminated: function isGameTerminated() {
       return this.props.over || this.props.won && !this.props.keepPlaying;
     },
@@ -573,7 +591,7 @@ window.exports.viewer = (function () {
       //as such we'll need addStartTiles and addRandomTile, both of which need to be able to operate on an arbitrary grid.
       if (this.props.grid && !this.isGridClean(this.props.grid)) {
         //it just needs cleanup
-        var grid = new _grid.Grid(this.props.objectCode.size, this.props.grid.cells);
+        var grid = new _grid.Grid(this.props.grid.size, this.props.grid.cells);
         this.dispatch({
           grid: grid
         });
@@ -581,6 +599,7 @@ window.exports.viewer = (function () {
         //we're actually resetting
         var grid = new _grid.Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
+        grid.flag = 1;
         this.dispatch({
           grid: grid,
           score: 0,
@@ -697,6 +716,7 @@ window.exports.viewer = (function () {
       });
 
       if (moved) {
+        grid.flag = 1;
         this.addRandomTile(grid, this.props.objectCode.seed);
         ifover = !(grid.cellsAvailable() || this.tileMatchesAvailable(grid, this.props.rule, this.props.objectCode.mode[1]));
         this.dispatch({
@@ -833,7 +853,7 @@ window.exports.viewer = (function () {
               { style: { 'width': data.boardsize + 'px' }, className: "gcontainer" },
               data.scorestyle ? React.createElement(ScoresContainer, { style: data.scorestyle, score: this.props.score, best: this.props.best || 0, boardsize: data.boardsize, rounding: data.rounding }) : null,
               data.title || data.desc ? React.createElement(HeaderContainer, { title: data.title, desc: data.desc, boardsize: data.boardsize }) : null,
-              React.createElement(ButtonContainer, { restart: this.setup, clearBest: this.clearBest, boardsize: data.boardsize, rounding: data.rounding })
+              React.createElement(ButtonContainer, { restart: this.setup, clearBest: this.clearBest, toggle: this.toggle, mode: data.mode, rule: this.props.rule, boardsize: data.boardsize, rounding: data.rounding })
             ),
             React.createElement("br", null),
             React.createElement(
@@ -917,11 +937,17 @@ window.exports.viewer = (function () {
     componentDidUpdate: function componentDidUpdate() {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       D3Test.drawButtons(element, this.props);
+      if (this.props.mode[0]) {
+        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+      }
     },
 
     componentDidMount: function componentDidMount() {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       D3Test.drawButtons(element, this.props);
+      if (this.props.mode[0]) {
+        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+      }
     },
 
     render: function render() {
@@ -971,7 +997,8 @@ window.exports.viewer = (function () {
     },
 
     shouldComponentUpdate: function shouldComponentUpdate(nextProps) {
-      if (nextProps.grid) {
+      if (nextProps.grid && nextProps.grid.flag) {
+        nextProps.grid.flag = 0;
         return true;
       } else {
         return false;

@@ -16,6 +16,12 @@ window.exports.viewer = (function () {
       window.removeEventListener("keydown", this.handleMove);
     },
 
+    componentDidUpdate: function() {
+      if(!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)){
+        this.setup();
+      }
+    },
+
     dispatch: function (data, reset) {
       if(reset){//replace entirely
         window.dispatcher.dispatch({
@@ -50,6 +56,16 @@ window.exports.viewer = (function () {
       });
     },
 
+    toggle: function () {
+      var t = this.props.rule + 1;
+      if(t > 2){
+        t = 0;
+      }
+      this.dispatch({
+        rule: t
+      });
+    },
+
     isGameTerminated: function () {
       return this.props.over || (this.props.won && !this.props.keepPlaying);
     },
@@ -59,13 +75,14 @@ window.exports.viewer = (function () {
       //add start tiles to the grid and then dispatch
       //as such we'll need addStartTiles and addRandomTile, both of which need to be able to operate on an arbitrary grid.
       if(this.props.grid && !this.isGridClean(this.props.grid)){//it just needs cleanup
-        var grid = new Grid(this.props.objectCode.size, this.props.grid.cells);
+        var grid = new Grid(this.props.grid.size, this.props.grid.cells);
         this.dispatch({
           grid: grid
         });
       } else {//we're actually resetting 
         var grid = new Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
+        grid.flag = 1;
         this.dispatch({
           grid: grid,
           score: 0,
@@ -178,6 +195,7 @@ window.exports.viewer = (function () {
       });
       
       if(moved) {
+        grid.flag = 1;
         this.addRandomTile(grid, this.props.objectCode.seed);
         ifover = !(grid.cellsAvailable() || this.tileMatchesAvailable(grid, this.props.rule, this.props.objectCode.mode[1]));
         this.dispatch({
@@ -301,7 +319,7 @@ window.exports.viewer = (function () {
               <div style={{'width':data.boardsize+'px'}} className='gcontainer'>
                 {data.scorestyle ? <ScoresContainer style={data.scorestyle} score={this.props.score} best={this.props.best || 0} boardsize={data.boardsize} rounding={data.rounding}/> : null}
                 {(data.title || data.desc) ? <HeaderContainer title={data.title} desc={data.desc} boardsize={data.boardsize}/> : null}
-                <ButtonContainer restart={this.setup} clearBest={this.clearBest} mode={data.mode[0]} boardsize={data.boardsize} rounding={data.rounding}/>
+                <ButtonContainer restart={this.setup} clearBest={this.clearBest} toggle={this.toggle} mode={data.mode} rule={this.props.rule} boardsize={data.boardsize} rounding={data.rounding}/>
               </div><br></br>
               <div style={{'width':data.boardsize+'px'}} className='game-container'>
                 <svg width={data.boardsize+'px'} height={data.boardsize+'px'} cursor='default' className='game-container'>
@@ -379,11 +397,17 @@ window.exports.viewer = (function () {
     componentDidUpdate: function () {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       D3Test.drawButtons(element, this.props);
+      if(this.props.mode[0]){
+        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+      }
     },
 
     componentDidMount: function () {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       D3Test.drawButtons(element, this.props);
+      if(this.props.mode[0]){
+        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+      }
     },
 
     render: function () {
@@ -436,7 +460,8 @@ window.exports.viewer = (function () {
     },
 
     shouldComponentUpdate: function (nextProps) {
-      if(nextProps.grid){
+      if(nextProps.grid && nextProps.grid.flag){
+        nextProps.grid.flag = 0;
         return true;
       } else {
         return false;
