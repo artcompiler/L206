@@ -157,12 +157,20 @@ Object.defineProperty(exports, "__esModule", {
 
 var round = 3;
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
-//let tilesize = (boardsize - gridspacing*(gridsize+1))/gridsize;
 
-//gridsize = props.size
-//boardsize = props.boardsize
-//gridspacing = props.spacing
-//certain things would still be separate, but that's probably acceptable given they're small in number.
+var splashScreen = function splashScreen(div, props, setup) {
+  var svg = div.append('svg').attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('class', 'splash');
+  svg.append('rect').attr('rx', props.rounding * 2).attr('ry', props.rounding * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', '#bbada0');
+  svg.append('rect').attr('rx', props.rounding).attr('ry', props.rounding).attr('height', props.boardsize - props.spacing * 2 + 'px').attr('width', props.boardsize - props.spacing * 2 + 'px').attr('x', props.spacing).attr('y', props.spacing).attr('fill', 'rgba(238, 228, 218, 0.35)').style('cursor', 'pointer').on('click', function (d) {
+    div.selectAll('svg').remove();
+    return setup();
+  });
+  var title = props.title ? props.title : {};
+  var te = svg.append('text').attr('x', props.boardsize / 2).attr('y', props.boardsize / 2).attr('fill', title['font-color'] || title['color'] || title['fill'] || '#776e65').style('font-family', title['font-family'] || font).style('font-weight', title['font-weight'] || 'bold').style('font-size', title['font-size'] || '60px').style('font-style', title['font-style'] || 'normal').style('text-decoration', title['text-decoration'] || 'none').style('text-anchor', 'middle').style('alignment-baseline', 'middle').style('cursor', 'pointer').text('Push to start!').on('click', function (d) {
+    div.selectAll('svg').remove();
+    return setup();
+  });
+};
 
 var drawGrid = function drawGrid(svg, props) {
   svg.selectAll('rect').remove();
@@ -258,19 +266,19 @@ var drawButtons = function drawButtons(div, props) {
   var svg = div.append('svg').attr('class', 'buttons');
   var g = svg.append('g');
 
-  g.append('rect').attr('y', 0 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  g.append('rect').attr('y', 0 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
     return props.restart();
   });
 
-  g.append('text').attr('x', 129 / 2 + 'px').attr('y', 0 + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('New Game').on('click', function (d) {
+  g.append('text').attr('x', 129 / 2 + 'px').attr('y', 0 + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'pointer').text('New Game').on('click', function (d) {
     return props.restart();
   });
 
-  g.append('rect').attr('x', 129 + 5 + 'px').attr('y', 0 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  g.append('rect').attr('x', 129 + 5 + 'px').attr('y', 0 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
     return props.clearBest();
   });
 
-  g.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 0 + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text("Clear Record").on('click', function (d) {
+  g.append('text').attr('x', 129 + 5 + 129 / 2 + 'px').attr('y', 0 + 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'pointer').text("Clear Record").on('click', function (d) {
     return props.clearBest();
   });
   svg.attr('width', props.boardsize).attr('height', g.node().getBBox().height * 1.1).style('float', 'right').style('display', 'block');
@@ -284,7 +292,7 @@ var drawButtons = function drawButtons(div, props) {
 var toggleButton = function toggleButton(svg, props) {
   var t = props.toggle;
   var rule = isNaN(props.rule) ? props.mode[2] : props.rule;
-  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on('click', function (d) {
+  svg.append('rect').attr('x', (129 + 5) * 2 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 129 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
     return t();
   });
 
@@ -301,7 +309,7 @@ var toggleButton = function toggleButton(svg, props) {
       break;
   }
 
-  svg.append('text').attr('x', (129 + 5) * 2 + 129 / 2 + 'px').attr('y', 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text(tex).on('click', function (d) {
+  svg.append('text').attr('x', (129 + 5) * 2 + 129 / 2 + 'px').attr('y', 20 + 22 / 4 + 'px').attr('text-anchor', 'middle').attr('fill', '#f9f6f2').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'pointer').text(tex).on('click', function (d) {
     return t();
   });
 };
@@ -339,6 +347,7 @@ var endScreen = function endScreen(svg, props, lose) {
   }
 };
 
+exports.splashScreen = splashScreen;
 exports.drawGrid = drawGrid;
 exports.addTile = addTile;
 exports.drawScore = drawScore;
@@ -522,7 +531,6 @@ window.exports.viewer = (function () {
     displayName: "Game",
 
     componentDidMount: function componentDidMount() {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       window.addEventListener("keydown", this.handleMove);
     },
 
@@ -531,8 +539,12 @@ window.exports.viewer = (function () {
     },
 
     componentDidUpdate: function componentDidUpdate() {
+      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      element.select('svg.splash').remove();
       if (!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)) {
         this.setup();
+      } else if (this.props.data && !this.isGridClean(this.props.grid)) {
+        D3Test.splashScreen(element, this.props.data, this.setup);
       }
     },
 
@@ -652,8 +664,6 @@ window.exports.viewer = (function () {
           this.move(mapped);
         } else if (event.which === 82 && this.isGridClean(this.props.grid)) {
           //reset
-          this.setup();
-        } else if (event.which === 83 && !this.isGridClean(this.props.grid)) {
           this.setup();
         }
       }
@@ -869,11 +879,7 @@ window.exports.viewer = (function () {
             )
           );
         } else {
-          return React.createElement(
-            "div",
-            null,
-            "\"This is a placeholder for the display before it's ready. Press S to start until we have a button.\""
-          );
+          return React.createElement("div", null);
         }
       } else {
         return React.createElement(

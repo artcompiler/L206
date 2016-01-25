@@ -4,12 +4,52 @@
 
 let round = 3;
 let font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
-//let tilesize = (boardsize - gridspacing*(gridsize+1))/gridsize;
 
-//gridsize = props.size
-//boardsize = props.boardsize
-//gridspacing = props.spacing
-//certain things would still be separate, but that's probably acceptable given they're small in number.
+let splashScreen = function (div, props, setup) {
+  var svg = div.append('svg')
+    .attr('width', props.boardsize+'px')
+    .attr('height', props.boardsize+'px')
+    .attr('class', 'splash');
+  svg.append('rect')
+    .attr('rx', props.rounding*2)
+    .attr('ry', props.rounding*2)
+    .attr('width', props.boardsize+'px')
+    .attr('height', props.boardsize+'px')
+    .attr('fill', '#bbada0');
+  svg.append('rect')
+    .attr('rx', props.rounding)
+    .attr('ry', props.rounding)
+    .attr('height', props.boardsize-(props.spacing*2)+'px')
+    .attr('width', props.boardsize-(props.spacing*2)+'px')
+    .attr('x', props.spacing)
+    .attr('y', props.spacing)
+    .attr('fill', 'rgba(238, 228, 218, 0.35)')
+    .style('cursor', 'pointer')
+    .on('click', function (d){
+      div.selectAll('svg')
+        .remove();
+      return setup();
+    });
+  var title = props.title ? props.title : {};
+  var te = svg.append('text')
+    .attr('x', props.boardsize/2)
+    .attr('y', props.boardsize/2)
+    .attr('fill', title['font-color'] || title['color'] || title['fill'] || '#776e65')
+    .style('font-family', title['font-family'] || font)
+    .style('font-weight', title['font-weight'] || 'bold')
+    .style('font-size', title['font-size'] || '60px')
+    .style('font-style', title['font-style'] || 'normal')
+    .style('text-decoration', title['text-decoration'] || 'none')
+    .style('text-anchor', 'middle')
+    .style('alignment-baseline', 'middle')
+    .style('cursor', 'pointer')
+    .text('Push to start!')
+    .on('click', function (d){
+      div.selectAll('svg')
+        .remove();
+      return setup();
+    });
+};
 
 let drawGrid = function (svg, props) {
   svg.selectAll('rect')
@@ -236,6 +276,7 @@ let drawButtons = function (div, props){
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
+    .style('cursor', 'pointer')
     .on('click', function(d){
       return props.restart();
     });
@@ -248,7 +289,7 @@ let drawButtons = function (div, props){
     .style('font-family', font)
     .style('font-size', 18+'px')
     .style('font-weight', 'bold')
-    .style('cursor', 'default')
+    .style('cursor', 'pointer')
     .text('New Game')
     .on('click', function(d){
       return props.restart();
@@ -262,6 +303,7 @@ let drawButtons = function (div, props){
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
+    .style('cursor', 'pointer')
     .on('click', function(d){
       return props.clearBest();
     });
@@ -274,7 +316,7 @@ let drawButtons = function (div, props){
     .style('font-family', font)
     .style('font-size', 18+'px')
     .style('font-weight', 'bold')
-    .style('cursor', 'default')
+    .style('cursor', 'pointer')
     .text("Clear Record")
     .on('click', function(d){
       return props.clearBest();
@@ -303,6 +345,7 @@ let toggleButton = function (svg, props){
     .attr('width', 129+'px')
     .attr('height', 40+'px')
     .attr('fill', '#8f7a66')
+    .style('cursor', 'pointer')
     .on('click', function(d){
       return t();
     });
@@ -328,7 +371,7 @@ let toggleButton = function (svg, props){
     .style('font-family', font)
     .style('font-size', 18+'px')
     .style('font-weight', 'bold')
-    .style('cursor', 'default')
+    .style('cursor', 'pointer')
     .text(tex)
     .on('click', function(d){
       return t();
@@ -447,6 +490,7 @@ let endScreen = function (svg, props, lose) {
 };
 
 export {
+  splashScreen,
   drawGrid,
   addTile,
   drawScore,

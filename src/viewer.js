@@ -8,7 +8,6 @@ import * as D3Test from "./d3Test";
 window.exports.viewer = (function () {
   var Game = React.createClass({
     componentDidMount: function() {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       window.addEventListener("keydown", this.handleMove);
     },
 
@@ -17,8 +16,13 @@ window.exports.viewer = (function () {
     },
 
     componentDidUpdate: function() {
+      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      element.select('svg.splash')
+        .remove();
       if(!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)){
         this.setup();
+      } else if(this.props.data && !this.isGridClean(this.props.grid)){
+        D3Test.splashScreen(element, this.props.data, this.setup);
       }
     },
 
@@ -134,8 +138,6 @@ window.exports.viewer = (function () {
           event.preventDefault();
           this.move(mapped);
         } else if(event.which === 82 && this.isGridClean(this.props.grid)){//reset
-          this.setup();
-        } else if(event.which === 83 && !this.isGridClean(this.props.grid)){
           this.setup();
         }
       }
@@ -332,7 +334,7 @@ window.exports.viewer = (function () {
           );
         } else {
           return (
-            <div>"This is a placeholder for the display before it's ready. Press S to start until we have a button."</div>
+            <div></div>
           );
         }
       } else {
