@@ -130,7 +130,7 @@ window.exports.viewer = (function () {
       var mapped = map[event.which];
 
       if(!modifiers && this.props.objectCode) {
-        if (mapped !== undefined) {
+        if (document.activeElement === document.body && mapped !== undefined) {
           event.preventDefault();
           this.move(mapped);
         } else if(event.which === 82 && this.isGridClean(this.props.grid)){//reset
