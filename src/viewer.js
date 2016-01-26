@@ -171,7 +171,7 @@ window.exports.viewer = (function () {
             var positions = self.findFarthestPosition(cell, vector, grid);
             var next = grid.cellContent(positions.next);
             var mval = self.calculate(tile.value, next, self.props.rule, self.props.objectCode.mode[1]);
-            if(!isNaN(mval) && !next.merfedFrom) {
+            if(!isNaN(mval) && !next.mergedFrom) {
               var merged = new Tile(positions.next, mval);
               merged.mergedFrom = [tile, next];
 
