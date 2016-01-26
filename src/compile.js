@@ -110,7 +110,7 @@ let translate = (function() {
                   b = b.length == 1 ? "0" + b : b;
                   ret = ret.concat("#"+r+g+b);
                 } else {
-                  err2 = err2.concat(error("Index" + index + " is not a valid hex string or rgb color.", node.elts[1]));
+                  err2 = err2.concat(error("Index " + index + " is not a valid hex string or rgb color.", node.elts[1]));
                 }
               });
             }
