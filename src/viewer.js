@@ -339,7 +339,7 @@ window.exports.viewer = (function () {
         }
       } else {
         return (
-          <div>"Loading or something?"</div>
+          <div>"Loading or suffering an error, wait if applicable."</div>
         );
       }
     }

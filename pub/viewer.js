@@ -885,7 +885,7 @@ window.exports.viewer = (function () {
         return React.createElement(
           "div",
           null,
-          "\"Loading or something?\""
+          "\"Loading or suffering an error, wait if applicable.\""
         );
       }
     }
