@@ -544,7 +544,7 @@ window.exports.viewer = (function () {
       if (!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)) {
         this.setup();
       } else if (this.props.data && !this.isGridClean(this.props.grid)) {
-        D3Test.splashScreen(element, this.props.data, this.setup);
+        setTimeout(this.setup, 0);
       }
     },
 
@@ -658,8 +658,8 @@ window.exports.viewer = (function () {
       var modifiers = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
       var mapped = map[event.which];
 
-      if (!modifiers && this.props.objectCode) {
-        if (document.activeElement === document.body && mapped !== undefined) {
+      if (!modifiers && document.activeElement === document.body) {
+        if (mapped !== undefined) {
           event.preventDefault();
           this.move(mapped);
         } else if (event.which === 82 && this.isGridClean(this.props.grid)) {
@@ -879,7 +879,11 @@ window.exports.viewer = (function () {
             )
           );
         } else {
-          return React.createElement("div", null);
+          return React.createElement(
+            "div",
+            null,
+            "\"Loading or suffering an error, wait if applicable.\""
+          );
         }
       } else {
         return React.createElement(
