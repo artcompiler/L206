@@ -207,7 +207,7 @@ var addTile = function addTile(svg, tile, props) {
 
 var drawAdd = function drawAdd(svg, diff, loc, props) {
   //font-size 25px, bold, rgba(119, 110, 101, 0.9), 600ms, think it starts where score is
-  svg.append('text').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', props.style['add-color'] || 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', props.style['font-size'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0).remove();
+  svg.append('text').attr('x', loc + 'px').attr('y', 50 + 'px').attr('fill', props.style['add-color'] || 'rgba(119, 110, 101, 0.9)').attr('text-anchor', 'middle').attr('opacity', 1).style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 25 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('+' + diff).transition().duration(600).attr('opacity', 0).attr('y', 0).remove();
 };
 
 var drawScore = function drawScore(svg, props) {
@@ -620,7 +620,7 @@ window.exports.viewer = (function () {
         //we're actually resetting
         var grid = new _grid.Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
-        grid.flag = 0;
+        grid.flag = 1;
         this.dispatch({
           grid: grid,
           score: 0,
