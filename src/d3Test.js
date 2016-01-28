@@ -96,7 +96,7 @@ let drawAdd = function (svg, diff, loc, props) {
     .attr('fill', props.style['add-color'] || 'rgba(119, 110, 101, 0.9)')
     .attr('text-anchor', 'middle')
     .attr('opacity', 1)
-    .style('font-family', props.style['font-size'] || font)
+    .style('font-family', props.style['font-family'] || font)
     .style('font-size', props.style['font-size'] || 25+'px')
     .style('font-weight', props.style['font-weight'] || 'bold')
     .style('font-style', props.style['font-style'] || 'normal')

@@ -82,7 +82,7 @@ window.exports.viewer = (function () {
       } else {//we're actually resetting 
         var grid = new Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
-        grid.flag = 0;
+        grid.flag = 1;
         this.dispatch({
           grid: grid,
           score: 0,
