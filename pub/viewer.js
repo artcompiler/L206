@@ -613,6 +613,7 @@ window.exports.viewer = (function () {
       if (this.props.grid && !this.isGridClean(this.props.grid)) {
         //it just needs cleanup
         var grid = new _grid.Grid(this.props.grid.size, this.props.grid.cells);
+        grid.flag = 1;
         this.dispatch({
           grid: grid
         });

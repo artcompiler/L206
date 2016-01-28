@@ -76,6 +76,7 @@ window.exports.viewer = (function () {
       //as such we'll need addStartTiles and addRandomTile, both of which need to be able to operate on an arbitrary grid.
       if(this.props.grid && !this.isGridClean(this.props.grid)){//it just needs cleanup
         var grid = new Grid(this.props.grid.size, this.props.grid.cells);
+        grid.flag = 1;
         this.dispatch({
           grid: grid
         });
