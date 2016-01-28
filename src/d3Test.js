@@ -2,75 +2,29 @@
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* Copyright (c) 2015, Jeff Dyer, Art Compiler LLC */
 
-let round = 3;
+//let round = 3;
 let font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
-
-let splashScreen = function (div, props, setup) {
-  var svg = div.append('svg')
-    .attr('width', props.boardsize+'px')
-    .attr('height', props.boardsize+'px')
-    .attr('class', 'splash');
-  svg.append('rect')
-    .attr('rx', props.rounding*2)
-    .attr('ry', props.rounding*2)
-    .attr('width', props.boardsize+'px')
-    .attr('height', props.boardsize+'px')
-    .attr('fill', '#bbada0');
-  svg.append('rect')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding)
-    .attr('height', props.boardsize-(props.spacing*2)+'px')
-    .attr('width', props.boardsize-(props.spacing*2)+'px')
-    .attr('x', props.spacing)
-    .attr('y', props.spacing)
-    .attr('fill', 'rgba(238, 228, 218, 0.35)')
-    .style('cursor', 'pointer')
-    .on('click', function (d){
-      div.selectAll('svg')
-        .remove();
-      return setup();
-    });
-  var title = props.title ? props.title : {};
-  var te = svg.append('text')
-    .attr('x', props.boardsize/2)
-    .attr('y', props.boardsize/2)
-    .attr('fill', title['font-color'] || title['color'] || title['fill'] || '#776e65')
-    .style('font-family', title['font-family'] || font)
-    .style('font-weight', title['font-weight'] || 'bold')
-    .style('font-size', title['font-size'] || '60px')
-    .style('font-style', title['font-style'] || 'normal')
-    .style('text-decoration', title['text-decoration'] || 'none')
-    .style('text-anchor', 'middle')
-    .style('alignment-baseline', 'middle')
-    .style('cursor', 'pointer')
-    .text('Push to start!')
-    .on('click', function (d){
-      div.selectAll('svg')
-        .remove();
-      return setup();
-    });
-};
 
 let drawGrid = function (svg, props) {
   svg.selectAll('rect')
     .remove();
   var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
   svg.append('rect')
-    .attr('rx', props.rounding*2)
-    .attr('ry', props.rounding*2)
+    .attr('rx', props.style.rounding*2)
+    .attr('ry', props.style.rounding*2)
     .attr('width', props.boardsize+'px')
     .attr('height', props.boardsize+'px')
-    .attr('fill', '#bbada0');
+    .attr('fill', props.style.background);
   for(var x=0; x < props.size; x++){
     for(var y=0; y < props.size; y++){
       svg.append('rect')
-        .attr('rx', props.rounding)
-        .attr('ry', props.rounding)
+        .attr('rx', props.style.rounding)
+        .attr('ry', props.style.rounding)
         .attr('width', tilesize+'px')
         .attr('height', tilesize+'px')
         .attr('x', (props.spacing+(x*(tilesize+props.spacing))))
         .attr('y', (props.spacing+(y*(tilesize+props.spacing))))
-        .attr('fill', 'rgba(238, 228, 218, 0.35)');
+        .attr('fill', props.style.foreground);
     }
   }
 };
@@ -103,8 +57,8 @@ let addTile = function (svg, tile, props) {
       .attr("transform", 'translate('+(props.spacing+position.x*(tilesize+props.spacing))+','+(props.spacing+position.y*(tilesize+props.spacing))+')');
   }
   t.append('rect')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding)
+    .attr('rx', props.style.rounding)
+    .attr('ry', props.style.rounding)
     .attr('width', tilesize+'px')
     .attr('height', tilesize+'px')
     .attr('fill', props.color(tile.value) || '#3c3a32');
@@ -118,14 +72,15 @@ let addTile = function (svg, tile, props) {
   t.append('text')
     .attr('x', (tilesize/2)/scale + 'px')
     .attr('y', (tilesize/2)/scale + 'px')
-    .attr('fill', (l>215) ? '#776e65' : '#f9f6f2')
+    .attr('fill', props.style.tilecolor || (l>215) ? '#776e65' : '#f9f6f2')
     .attr('text-anchor', 'middle')
     .attr('alignment-baseline', 'central')
     .attr("transform", 'scale('+scale+', '+scale+')')
-    .style('font-family', font)
+    .style('font-family', props.style['font-family'] || font)
     .style('cursor', 'default')
-    .style('font-size', fontsize+'px')
-    .style('font-weight', 'bold')
+    .style('font-size', props.style['font-size'] || fontsize+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
     .text(tile.value);
 
   //set up a transition from previousPosition to current position for tiles that have it
@@ -133,17 +88,19 @@ let addTile = function (svg, tile, props) {
   //figure out what to do about merged tiles
 };
 
-let drawAdd = function (svg, diff, loc) {
+let drawAdd = function (svg, diff, loc, props) {
   //font-size 25px, bold, rgba(119, 110, 101, 0.9), 600ms, think it starts where score is
   svg.append('text')
     .attr('x', loc+'px')
     .attr('y', 50+'px')
-    .attr('fill', 'rgba(119, 110, 101, 0.9)')
+    .attr('fill', props.style['add-color'] || 'rgba(119, 110, 101, 0.9)')
     .attr('text-anchor', 'middle')
     .attr('opacity', 1)
-    .style('font-family', font)
-    .style('font-size', 25+'px')
-    .style('font-weight', 'bold')
+    .style('font-family', props.style['font-size'] || font)
+    .style('font-size', props.style['font-size'] || 25+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('font-style', props.style['font-style'] || 'normal')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
     .text('+'+diff)
     .transition()
       .duration(600)
@@ -162,13 +119,13 @@ let drawScore = function (svg, props) {
     p = props.boardsize/500;
   }
   var rec = g.append('rect')
-    .attr('fill', '#bbada0')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding);
+    .attr('fill', props.style.background || '#bbada0')
+    .attr('rx', props.style.rounding || 3)//props.style must exist or score won't be drawn
+    .attr('ry', props.style.rounding || 3);//props.style.rounding may not exist, though.
   var rec2 = g.append('rect')
-    .attr('fill', '#bbada0')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding);
+    .attr('fill', props.style.background || '#bbada0')
+    .attr('rx', props.style.rounding || 3)
+    .attr('ry', props.style.rounding || 3);
   var tex = g.append('text')
     .attr('text-anchor', 'middle')
     .attr('fill', props.style['font-color'] || props.style['color'] || props.style['fill'] || 'white')
@@ -200,8 +157,8 @@ let drawScore = function (svg, props) {
     .attr('x', (50*p + tb.width)/2 + 10*p + (50*p + ts.width) + 'px')
     .attr('y', 20*p+'px')
     .attr('text-anchor', 'middle')
-    .attr('fill', '#eee4da')
-    .style('font-family', font)
+    .attr('fill', props.style['label-color'] || '#eee4da')
+    .style('font-family', props.style['font-family'] || font)
     .style('font-size', 13*p+'px')
     .text('BEST');
   rec2
@@ -215,8 +172,8 @@ let drawScore = function (svg, props) {
     .attr('x', (50*p + ts.width)/2 + 'px')
     .attr('y', 20*p+'px')
     .attr('text-anchor', 'middle')
-    .attr('fill', '#eee4da')
-    .style('font-family', font)
+    .attr('fill', props.style['label-color'] || '#eee4da')
+    .style('font-family',  props.style['font-family'] || font)
     .style('font-size', 13*p+'px')
     .text('SCORE');
   svg
@@ -230,7 +187,7 @@ let drawScore = function (svg, props) {
 };
 
 let drawHeader = function (div, props) {
-  if(props.title){
+  if(props.title && props.title.label){
     div.selectAll('h1')
       .remove();
     var head = div.insert('h1', 'br')
@@ -245,7 +202,7 @@ let drawHeader = function (div, props) {
       .style('margin-bottom', 20+'px')
       .text(props.title.label);
   }
-  if(props.desc){
+  if(props.desc && props.desc.label){
     div.selectAll('p')
       .remove();
     var des = div.insert('p', 'br')
@@ -269,58 +226,40 @@ let drawButtons = function (div, props){
   var svg = div.append('svg').attr('class', 'buttons');
   var g = svg.append('g');
 
-  g.append('rect')
-    .attr('y', 0+'px')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding)
-    .attr('width', 129+'px')
-    .attr('height', 40+'px')
-    .attr('fill', '#8f7a66')
+  var rec = g.append('rect')
+    .attr('rx', props.style.rounding || 3)
+    .attr('ry', props.style.rounding || 3)
+    .attr('fill', props.style.background || '#8f7a66')
     .style('cursor', 'pointer')
     .on('click', function(d){
       return props.restart();
     });
 
-  g.append('text')
-    .attr('x', 129/2 + 'px')
-    .attr('y', 0+20+(22/4)+'px')
+  var tex1 = g.append('text')
     .attr('text-anchor', 'middle')
-    .attr('fill', '#f9f6f2')
-    .style('font-family', font)
-    .style('font-size', 18+'px')
-    .style('font-weight', 'bold')
+    .attr('alignment-baseline', 'central')
+    .attr('fill', props.style['font-color'] || '#f9f6f2')
+    .style('font-family', props.style['font-family'] || font)
+    .style('font-size', props.style['font-size'] || 18+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('font-style', props.style['font-style'] || 'normal')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
     .style('cursor', 'pointer')
     .text('New Game')
     .on('click', function(d){
       return props.restart();
     });
 
-  g.append('rect')
-    .attr('x', 129 + 5 + 'px')
-    .attr('y', 0+'px')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding)
-    .attr('width', 129+'px')
-    .attr('height', 40+'px')
-    .attr('fill', '#8f7a66')
-    .style('cursor', 'pointer')
-    .on('click', function(d){
-      return props.clearBest();
-    });
+  var tb = tex1.node().getBBox();
 
-  g.append('text')
-    .attr('x', 129 + 5 + (129/2) + 'px')
-    .attr('y', 0+20+(22/4)+'px')
-    .attr('text-anchor', 'middle')
-    .attr('fill', '#f9f6f2')
-    .style('font-family', font)
-    .style('font-size', 18+'px')
-    .style('font-weight', 'bold')
-    .style('cursor', 'pointer')
-    .text("Clear Record")
-    .on('click', function(d){
-      return props.clearBest();
-    });
+  rec
+    .attr('width', 10+tb.width)
+    .attr('height', 18+tb.height);
+
+  tex1
+    .attr('x', (10+tb.width)/2)
+    .attr('y', (18+tb.height)/2);
+
   svg
     .attr('width', props.boardsize)
     .attr('height', g.node().getBBox().height*1.1)
@@ -333,49 +272,122 @@ let drawButtons = function (div, props){
     svg
       .attr('height', g.node().getBBox().height*1.1*p);
   }
+  return (10+tb.width);
 };
 
-let toggleButton = function (svg, props){
+let toggleButton = function (svg, props, width){
   var t = props.toggle;
   var rule = isNaN(props.rule) ? props.mode[2] : props.rule;
-  svg.append('rect')
-    .attr('x', (129 + 5)*2 + 'px')
-    .attr('rx', props.rounding)
-    .attr('ry', props.rounding)
-    .attr('width', 129+'px')
-    .attr('height', 40+'px')
-    .attr('fill', '#8f7a66')
+  //Add is 0, Mult is 1, Div is 2
+
+  var rec = svg.append('rect')
+    .attr('rx', props.style.rounding || 3)
+    .attr('ry', props.style.rounding || 3)
+    .attr('fill', (rule === 0) ? (props.style['color-selected'] || '#5C4733') : (props.style.background || '#8f7a66'))
     .style('cursor', 'pointer')
     .on('click', function(d){
-      return t();
+      if(rule != 0){
+        return t(0);
+      } else return null;
     });
 
-  var tex = 'Err';
-  switch(rule){//text should show the next state
-    case 0:
-      tex = 'Mult';
-      break;
-    case 1:
-      tex = 'Div';
-      break;
-    case 2:
-      tex = 'Add';
-      break;
-  }
+  var tex1 = svg.append('text')
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'central')
+    .attr('fill', props.style['font-color'] || '#f9f6f2')
+    .style('font-family', props.style['font-family'] || font)
+    .style('font-size', props.style['font-size'] || 18+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('font-style', props.style['font-style'] || 'normal')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
+    .style('cursor', 'pointer')
+    .text('Add')
+    .on('click', function(d){
+      if(rule != 0){
+        return t(0);
+      } else return null;
+    });
+
+  var tb = tex1.node().getBBox();
+
+  rec
+    .attr('x', width + 5)
+    .attr('width', 10+tb.width)
+    .attr('height', 18+tb.height);
+
+  tex1
+    .attr('x', (width + 5) + (10+tb.width)/2)
+    .attr('y', (18+tb.height)/2);
+
+  var running = width + 20 + tb.width;
+
+  svg.append('rect')
+    .attr('x', running)
+    .attr('width', 10+tb.width)
+    .attr('height', 18+tb.height)
+    .attr('rx', props.style.rounding || 3)
+    .attr('ry', props.style.rounding || 3)
+    .attr('fill', (rule === 1) ? (props.style['color-selected'] || '#5C4733') : (props.style.background || '#8f7a66'))
+    .style('cursor', 'pointer')
+    .on('click', function(d){
+      if(rule != 1){
+        return t(1);
+      } else return null;
+    });
 
   svg.append('text')
-    .attr('x', (129 + 5)*2 + (129/2) + 'px')
-    .attr('y', 20+(22/4)+'px')
+    .attr('x', running + (10+tb.width)/2)
+    .attr('y', (18+tb.height)/2)
     .attr('text-anchor', 'middle')
-    .attr('fill', '#f9f6f2')
-    .style('font-family', font)
-    .style('font-size', 18+'px')
-    .style('font-weight', 'bold')
+    .attr('alignment-baseline', 'central')
+    .attr('fill', props.style['font-color'] || '#f9f6f2')
+    .style('font-family', props.style['font-family'] || font)
+    .style('font-size', props.style['font-size'] || 18+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('font-style', props.style['font-style'] || 'normal')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
     .style('cursor', 'pointer')
-    .text(tex)
+    .text('Mul')
     .on('click', function(d){
-      return t();
+      if(rule != 1){
+        return t(1);
+      } else return null;
+  });
+
+  running += 15 + tb.width;
+
+  svg.append('rect')
+    .attr('x', running)
+    .attr('width', 10+tb.width)
+    .attr('height', 18+tb.height)
+    .attr('rx', props.style.rounding || 3)
+    .attr('ry', props.style.rounding || 3)
+    .attr('fill', (rule === 2) ? (props.style['color-selected'] || '#5C4733') : (props.style.background || '#8f7a66'))
+    .style('cursor', 'pointer')
+    .on('click', function(d){
+      if(rule != 2){
+        return t(2);
+      } else return null;
     });
+
+  svg.append('text')
+    .attr('x', running + (10+tb.width)/2)
+    .attr('y', (18+tb.height)/2)
+    .attr('text-anchor', 'middle')
+    .attr('alignment-baseline', 'central')
+    .attr('fill', props.style['font-color'] || '#f9f6f2')
+    .style('font-family', props.style['font-family'] || font)
+    .style('font-size', props.style['font-size'] || 18+'px')
+    .style('font-weight', props.style['font-weight'] || 'bold')
+    .style('font-style', props.style['font-style'] || 'normal')
+    .style('text-decoration', props.style['text-decoration'] || 'none')
+    .style('cursor', 'pointer')
+    .text('Div')
+    .on('click', function(d){
+      if(rule != 2){
+        return t(2);
+      } else return null;
+  });
 };
 
 let endScreen = function (svg, props, lose) {
@@ -490,7 +502,6 @@ let endScreen = function (svg, props, lose) {
 };
 
 export {
-  splashScreen,
   drawGrid,
   addTile,
   drawScore,

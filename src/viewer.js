@@ -60,11 +60,7 @@ window.exports.viewer = (function () {
       });
     },
 
-    toggle: function () {
-      var t = this.props.rule + 1;
-      if(t > 2){
-        t = 0;
-      }
+    toggle: function (t) {
       this.dispatch({
         rule: t
       });
@@ -319,14 +315,14 @@ window.exports.viewer = (function () {
           return (
             <div>
               <div style={{'width':data.boardsize+'px'}} className='gcontainer'>
-                {data.scorestyle ? <ScoresContainer style={data.scorestyle} score={this.props.score} best={this.props.best || 0} boardsize={data.boardsize} rounding={data.rounding}/> : null}
-                {(data.title || data.desc) ? <HeaderContainer title={data.title} desc={data.desc} boardsize={data.boardsize}/> : null}
-                <ButtonContainer restart={this.setup} clearBest={this.clearBest} toggle={this.toggle} mode={data.mode} rule={this.props.rule} boardsize={data.boardsize} rounding={data.rounding}/>
+                {data.score ? <ScoresContainer style={data.score} score={this.props.score} best={this.props.best || 0} boardsize={data.boardsize} rounding={data.rounding}/> : null}
+                {(data.title || data.description) ? <HeaderContainer title={data.title} desc={data.description} boardsize={data.boardsize}/> : null}
+                <ButtonContainer restart={this.setup} style={data.button} clearBest={this.clearBest} toggle={this.toggle} mode={data.mode} rule={this.props.rule} boardsize={data.boardsize} rounding={data.rounding}/>
               </div><br></br>
               <div style={{'width':data.boardsize+'px'}} className='game-container'>
                 <svg width={data.boardsize+'px'} height={data.boardsize+'px'} cursor='default' className='game-container'>
-                  <GridContainer size={data.size} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
-                  <TileContainer color={color} grid={this.props.grid} size={data.size} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
+                  <GridContainer size={data.size} style={data.grid} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
+                  <TileContainer color={color} style={data.grid} grid={this.props.grid} size={data.size} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
                   <GameMessage restart={this.setup} keepPlaying={this.keepPlaying} won={this.props.won} over={this.props.over} terminated={this.isGameTerminated()} boardsize={data.boardsize} rounding={data.rounding}/>
                 </svg>
               </div>
@@ -376,7 +372,7 @@ window.exports.viewer = (function () {
       var loc = D3Test.drawScore(element, this.props);
       if (difference > 0){
         var c = element.select('g');
-        D3Test.drawAdd(c, difference, loc);
+        D3Test.drawAdd(c, difference, loc, this.props);
       }
     },
 
@@ -398,17 +394,17 @@ window.exports.viewer = (function () {
   var ButtonContainer = React.createClass({
     componentDidUpdate: function () {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
-      D3Test.drawButtons(element, this.props);
+      var width = D3Test.drawButtons(element, this.props);
       if(this.props.mode[0]){
-        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+        D3Test.toggleButton(element.select('svg.buttons'), this.props, width);
       }
     },
 
     componentDidMount: function () {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
-      D3Test.drawButtons(element, this.props);
+      var width = D3Test.drawButtons(element, this.props);
       if(this.props.mode[0]){
-        D3Test.toggleButton(element.select('svg.buttons'), this.props);
+        D3Test.toggleButton(element.select('svg.buttons'), this.props, width);
       }
     },
 

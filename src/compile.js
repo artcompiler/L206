@@ -165,7 +165,14 @@ let translate = (function() {
       goal: 2048,
       seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
-      tilecolor: ['#eee4da', '#edc22e']
+      tilecolor: ['#eee4da', '#edc22e'],
+      grid: {
+        rounding: 3,
+        background: '#bbada0',
+        foreground: 'rgba(238, 228, 218, 0.35)'
+      },
+      button: {
+      }
     });
   };
 
@@ -250,6 +257,7 @@ let translate = (function() {
           case 'addition':
             ret[2] = 0;//default is 'addition without any or button', of course.
             break;
+          case 'mul':
           case 'mult':
           case 'multiply':
           case 'multiplication':
@@ -276,16 +284,6 @@ let translate = (function() {
     });
   };
 
-  function round(node, options, resume) {
-    let params = {
-      op: "positive",
-      prop: "rounding"
-    };
-    set(node, options, function (err, val) {
-      resume([].concat(err), val);
-    }, params);
-  };
-
   function tilecolor(node, options, resume) {
     let params = {
       op: "color",
@@ -305,26 +303,17 @@ let translate = (function() {
           if(typeof val1 !== "object" || !val1 || val1.play !== true){
             err1 = err1.concat(error("Argument Data invalid.", node.elts[0]));
           } else {
-            val2.forEach(function (element, index, array) {
-              if(element.key && element.val){
-                //within that loop, check through the list of possible objects
-                //if found, check if object[key] is defined
-                //if not, object[key] = value
-                if(val1.title){
-                  if(!val1.title[element.key]){
-                    val1.title[element.key] = element.val;
+            val2.forEach(function (element, index) {
+              if(element.key && element.val){//first-tier keys are 'button', 'score', etc
+                //instead of checking through the list of possible objects, we check each name.
+                //second-tier keys are 'font-size', 'color', etc
+                //so, val1.title[font-size] is identical to val1[title][font-size]
+                val1[element.key] = val1[element.key] || {};//make sure it exists first
+                element.val.forEach(function (el2, ind) {
+                  if(el2.key && el2.val){//example: val1[title][font-size] = 10
+                    val1[element.key][el2.key] = el2.val;
                   }
-                }
-                if(val1.desc){
-                  if(!val1.desc[element.key]){
-                    val1.desc[element.key] = element.val;
-                  }
-                }
-                if(val1.scorestyle){
-                  if(!val1.scorestyle[element.key]){
-                    val1.scorestyle[element.key] = element.val;
-                  }
-                }
+                });
               } else {
                 err2 = err2.concat(error("Index " + index + " is an invalid object.", node.elts[1]));
               }
@@ -337,41 +326,6 @@ let translate = (function() {
         resume([].concat(err2), val2);
       }
     });
-  };
-
-  function title(node, options, resume) {
-    let params = {
-      op: "string",
-      prop: "title"
-    };
-    set(node, options, function (err, val) {
-      resume([].concat(err), val);
-    }, params);
-  };
-
-  function description(node, options, resume) {
-    let params = {
-      op: "string",
-      prop: "desc"
-    };
-    set(node, options, function (err, val) {
-      resume([].concat(err), val);
-    }, params);
-  };
-
-  function score(node, options, resume){
-    let params = {
-      op: "default",
-      prop: "scorestyle",
-      val: {label: true}
-    };
-    set(node, options, function (err, val) {
-      resume([].concat(err), val);
-    }, params);
-  };
-
-  function button(node, options, resume){
-
   };
 
   let table = {
@@ -391,14 +345,9 @@ let translate = (function() {
     "GOAL" : goal,
     "SEED" : seed,
     "MODE" : mode,
-    "ROUND" : round,
     "TILECOLOR" : tilecolor,
     "RGB" : rgb,
     "STYLE" : style,
-    "TITLE" : title,
-    "DESCRIPTION" : description,
-    "SCORE" : score,
-    "BUTTON" : button,
   }
   return translate;
 })();
