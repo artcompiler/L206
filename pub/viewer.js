@@ -620,7 +620,7 @@ window.exports.viewer = (function () {
         //we're actually resetting
         var grid = new _grid.Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
-        grid.flag = 1;
+        grid.flag = 0;
         this.dispatch({
           grid: grid,
           score: 0,
