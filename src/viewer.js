@@ -309,9 +309,10 @@ window.exports.viewer = (function () {
       var data = this.props.data;
       if(data){
         if(this.isGridClean(this.props.grid)){
+          console.log(data.tilecolor[1]);
           let color = d3.scale.log().base(2)
             .domain([Math.min.apply(Math, data.seed), data.goal])
-            .range(data.tilecolor)
+            .range([data.tilecolor[0], data.tilecolor[1] || data.tilecolor[0]])
             .interpolate(d3.interpolateLab);
           return (
             <div>
