@@ -318,7 +318,7 @@ window.exports.viewer = (function () {
               <div style={{'width':data.boardsize+'px'}} className='gcontainer'>
                 {data.score ? <ScoresContainer style={data.score} score={this.props.score} best={this.props.best || 0} boardsize={data.boardsize} rounding={data.rounding}/> : null}
                 {(data.title || data.description) ? <HeaderContainer title={data.title} desc={data.description} boardsize={data.boardsize}/> : null}
-                <ButtonContainer restart={this.setup} style={data.button} clearBest={this.clearBest} toggle={this.toggle} mode={data.mode} rule={this.props.rule} boardsize={data.boardsize} rounding={data.rounding}/>
+                {(data.button || data.mode[0]) ? <ButtonContainer restart={this.setup} style={data.button || {}} clearBest={this.clearBest} toggle={this.toggle} mode={data.mode} rule={this.props.rule} boardsize={data.boardsize} rounding={data.rounding}/> : null}
               </div><br></br>
               <div style={{'width':data.boardsize+'px'}} className='game-container'>
                 <svg width={data.boardsize+'px'} height={data.boardsize+'px'} cursor='default' className='game-container'>

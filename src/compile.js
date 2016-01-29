@@ -160,8 +160,6 @@ let translate = (function() {
       play: true, 
       size: 4,
       boardsize: 500,
-      spacing: 15,
-      rounding: 3,
       goal: 2048,
       seed: [2,2,2,2,2,2,2,2,2,4],
       mode: [false, false, 0],
@@ -171,8 +169,6 @@ let translate = (function() {
         background: '#bbada0',
         foreground: 'rgba(238, 228, 218, 0.35)'
       },
-      button: {
-      }
     });
   };
 
@@ -328,6 +324,48 @@ let translate = (function() {
     });
   };
 
+  function title(node, options, resume) {
+    let params = {
+      op: "string",
+      prop: "title",
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function description(node, options, resume) {
+    let params = {
+      op: "string",
+      prop: "description",
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function score(node, options, resume) {
+    let params = {
+      op: "default",
+      prop: "score",
+      val: {}
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  };
+
+  function button(node, options, resume) {
+    let params = {
+      op: "default",
+      prop: "button",
+      val: {}
+    };
+    set(node, options, function (err, val) {
+      resume([].concat(err), val);
+    }, params);
+  }
+
   let table = {
     "PROG" : program,
     "EXPRS" : exprs,
@@ -348,6 +386,10 @@ let translate = (function() {
     "TILECOLOR" : tilecolor,
     "RGB" : rgb,
     "STYLE" : style,
+    "TITLE" : title,
+    "DESC" : description,
+    "SCORE" : score,
+    "BUTTON" : button,
   }
   return translate;
 })();

@@ -6,9 +6,10 @@
 let font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 
 let drawGrid = function (svg, props) {
+  var spacing = props.spacing || 15*(props.boardsize/500)/(props.size/4);
   svg.selectAll('rect')
     .remove();
-  var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
+  var tilesize = (props.boardsize - spacing*(props.size+1))/props.size;
   svg.append('rect')
     .attr('rx', props.style.rounding*2)
     .attr('ry', props.style.rounding*2)
@@ -22,8 +23,8 @@ let drawGrid = function (svg, props) {
         .attr('ry', props.style.rounding)
         .attr('width', tilesize+'px')
         .attr('height', tilesize+'px')
-        .attr('x', (props.spacing+(x*(tilesize+props.spacing))))
-        .attr('y', (props.spacing+(y*(tilesize+props.spacing))))
+        .attr('x', (spacing+(x*(tilesize+spacing))))
+        .attr('y', (spacing+(y*(tilesize+spacing))))
         .attr('fill', props.style.foreground);
     }
   }
@@ -34,16 +35,17 @@ let drawGrid = function (svg, props) {
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
 let addTile = function (svg, tile, props) {
-  var tilesize = (props.boardsize - props.spacing*(props.size+1))/props.size;
+  var spacing = props.spacing || 15*(props.boardsize/500)/(props.size/4);
+  var tilesize = (props.boardsize - spacing*(props.size+1))/props.size;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
   if(tile.previousPosition){
     var t = svg.append('g')
-      .attr("transform", 'translate('+(props.spacing+position.x*(tilesize+props.spacing))+','+(props.spacing+position.y*(tilesize+props.spacing))+')');
+      .attr("transform", 'translate('+(spacing+position.x*(tilesize+spacing))+','+(spacing+position.y*(tilesize+spacing))+')');
     t.transition()
       .duration(100)
-      .attr("transform", 'translate('+(props.spacing+tile.x*(tilesize+props.spacing))+','+(props.spacing+tile.y*(tilesize+props.spacing))+')');
+      .attr("transform", 'translate('+(spacing+tile.x*(tilesize+spacing))+','+(spacing+tile.y*(tilesize+spacing))+')');
   } else {
     if(tile.mergedFrom){
       tile.mergedFrom.forEach(function (merged) {
@@ -51,10 +53,10 @@ let addTile = function (svg, tile, props) {
       });
     }
     var t = svg.append('g')
-      .attr("transform", 'translate('+(props.spacing+position.x*(tilesize+props.spacing) + tilesize/2)+','+(props.spacing+position.y*(tilesize+props.spacing) + tilesize/2)+') scale(0, 0)');
+      .attr("transform", 'translate('+(spacing+position.x*(tilesize+spacing) + tilesize/2)+','+(spacing+position.y*(tilesize+spacing) + tilesize/2)+') scale(0, 0)');
     t.transition()
       .duration(100)
-      .attr("transform", 'translate('+(props.spacing+position.x*(tilesize+props.spacing))+','+(props.spacing+position.y*(tilesize+props.spacing))+')');
+      .attr("transform", 'translate('+(spacing+position.x*(tilesize+spacing))+','+(spacing+position.y*(tilesize+spacing))+')');
   }
   t.append('rect')
     .attr('rx', props.style.rounding)

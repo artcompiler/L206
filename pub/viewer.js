@@ -159,12 +159,13 @@ Object.defineProperty(exports, "__esModule", {
 var font = '"Clear Sans", "Helvetica Neue", Arial, sans-serif';
 
 var drawGrid = function drawGrid(svg, props) {
+  var spacing = props.spacing || 15 * (props.boardsize / 500) / (props.size / 4);
   svg.selectAll('rect').remove();
-  var tilesize = (props.boardsize - props.spacing * (props.size + 1)) / props.size;
+  var tilesize = (props.boardsize - spacing * (props.size + 1)) / props.size;
   svg.append('rect').attr('rx', props.style.rounding * 2).attr('ry', props.style.rounding * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', props.style.background);
   for (var x = 0; x < props.size; x++) {
     for (var y = 0; y < props.size; y++) {
-      svg.append('rect').attr('rx', props.style.rounding).attr('ry', props.style.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', props.spacing + x * (tilesize + props.spacing)).attr('y', props.spacing + y * (tilesize + props.spacing)).attr('fill', props.style.foreground);
+      svg.append('rect').attr('rx', props.style.rounding).attr('ry', props.style.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', spacing + x * (tilesize + spacing)).attr('y', spacing + y * (tilesize + spacing)).attr('fill', props.style.foreground);
     }
   }
 };
@@ -174,21 +175,22 @@ var drawGrid = function drawGrid(svg, props) {
 //font size 55px, bold, center
 //translate by 121 pixels (size + 14) per square
 var addTile = function addTile(svg, tile, props) {
-  var tilesize = (props.boardsize - props.spacing * (props.size + 1)) / props.size;
+  var spacing = props.spacing || 15 * (props.boardsize / 500) / (props.size / 4);
+  var tilesize = (props.boardsize - spacing * (props.size + 1)) / props.size;
   var position = tile.previousPosition || { x: tile.x, y: tile.y };
 
   //if >8 use #776e65 else use #f9f6f2
   if (tile.previousPosition) {
-    var t = svg.append('g').attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing)) + ',' + (props.spacing + position.y * (tilesize + props.spacing)) + ')');
-    t.transition().duration(100).attr("transform", 'translate(' + (props.spacing + tile.x * (tilesize + props.spacing)) + ',' + (props.spacing + tile.y * (tilesize + props.spacing)) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (spacing + position.x * (tilesize + spacing)) + ',' + (spacing + position.y * (tilesize + spacing)) + ')');
+    t.transition().duration(100).attr("transform", 'translate(' + (spacing + tile.x * (tilesize + spacing)) + ',' + (spacing + tile.y * (tilesize + spacing)) + ')');
   } else {
     if (tile.mergedFrom) {
       tile.mergedFrom.forEach(function (merged) {
         addTile(svg, merged, props);
       });
     }
-    var t = svg.append('g').attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing) + tilesize / 2) + ',' + (props.spacing + position.y * (tilesize + props.spacing) + tilesize / 2) + ') scale(0, 0)');
-    t.transition().duration(100).attr("transform", 'translate(' + (props.spacing + position.x * (tilesize + props.spacing)) + ',' + (props.spacing + position.y * (tilesize + props.spacing)) + ')');
+    var t = svg.append('g').attr("transform", 'translate(' + (spacing + position.x * (tilesize + spacing) + tilesize / 2) + ',' + (spacing + position.y * (tilesize + spacing) + tilesize / 2) + ') scale(0, 0)');
+    t.transition().duration(100).attr("transform", 'translate(' + (spacing + position.x * (tilesize + spacing)) + ',' + (spacing + position.y * (tilesize + spacing)) + ')');
   }
   t.append('rect').attr('rx', props.style.rounding).attr('ry', props.style.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('fill', props.color(tile.value) || '#3c3a32');
   //65 -> 77, 55 -> 66, 45 -> 54, 35 -> 42
@@ -857,7 +859,6 @@ window.exports.viewer = (function () {
     },
 
     render: function render() {
-      console.log(this.props);
       var data = this.props.data;
       if (data) {
         if (this.isGridClean(this.props.grid)) {
@@ -870,7 +871,7 @@ window.exports.viewer = (function () {
               { style: { 'width': data.boardsize + 'px' }, className: "gcontainer" },
               data.score ? React.createElement(ScoresContainer, { style: data.score, score: this.props.score, best: this.props.best || 0, boardsize: data.boardsize, rounding: data.rounding }) : null,
               data.title || data.description ? React.createElement(HeaderContainer, { title: data.title, desc: data.description, boardsize: data.boardsize }) : null,
-              React.createElement(ButtonContainer, { restart: this.setup, style: data.button, clearBest: this.clearBest, toggle: this.toggle, mode: data.mode, rule: this.props.rule, boardsize: data.boardsize, rounding: data.rounding })
+              data.button || data.mode[0] ? React.createElement(ButtonContainer, { restart: this.setup, style: data.button || {}, clearBest: this.clearBest, toggle: this.toggle, mode: data.mode, rule: this.props.rule, boardsize: data.boardsize, rounding: data.rounding }) : null
             ),
             React.createElement("br", null),
             React.createElement(
