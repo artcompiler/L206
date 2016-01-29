@@ -251,21 +251,21 @@ let drawButtons = function (div, props){
     });
 
   var tb = tex1.node().getBBox();
-
+  var p = tb.height/22;
   rec
-    .attr('width', 10+tb.width)
-    .attr('height', 18+tb.height);
+    .attr('width', 10*p+tb.width)
+    .attr('height', 18*p+tb.height);
 
   tex1
-    .attr('x', (10+tb.width)/2)
-    .attr('y', (18+tb.height)/2);
+    .attr('x', (10*p+tb.width)/2)
+    .attr('y', (18*p+tb.height)/2);
 
   svg
     .attr('width', props.boardsize)
     .attr('height', g.node().getBBox().height*1.1)
     .style('float', 'right')
     .style('display', 'block');
-  return (10+tb.width);
+  return (10*p+tb.width);
 };
 
 let toggleButton = function (svg, props, width){
@@ -302,22 +302,23 @@ let toggleButton = function (svg, props, width){
     });
 
   var tb = tex1.node().getBBox();
+  var p = tb.height/22;
 
   rec
-    .attr('x', width + 5)
-    .attr('width', 10+tb.width)
-    .attr('height', 18+tb.height);
+    .attr('x', width + 5*p)
+    .attr('width', 10*p+tb.width)
+    .attr('height', 18*p+tb.height);
 
   tex1
-    .attr('x', (width + 5) + (10+tb.width)/2)
-    .attr('y', (18+tb.height)/2);
+    .attr('x', (width + 5*p) + (10*p+tb.width)/2)
+    .attr('y', (18*p+tb.height)/2);
 
-  var running = width + 20 + tb.width;
+  var running = width + 20*p + tb.width;
 
   svg.append('rect')
     .attr('x', running)
-    .attr('width', 10+tb.width)
-    .attr('height', 18+tb.height)
+    .attr('width', 10*p+tb.width)
+    .attr('height', 18*p+tb.height)
     .attr('rx', props.style.rounding || 3)
     .attr('ry', props.style.rounding || 3)
     .attr('fill', (rule === 1) ? (props.style['color-selected'] || '#5C4733') : (props.style.background || '#8f7a66'))
@@ -329,8 +330,8 @@ let toggleButton = function (svg, props, width){
     });
 
   svg.append('text')
-    .attr('x', running + (10+tb.width)/2)
-    .attr('y', (18+tb.height)/2)
+    .attr('x', running + (10*p+tb.width)/2)
+    .attr('y', (18*p+tb.height)/2)
     .attr('text-anchor', 'middle')
     .attr('alignment-baseline', 'central')
     .attr('fill', props.style['font-color'] || '#f9f6f2')
@@ -347,12 +348,12 @@ let toggleButton = function (svg, props, width){
       } else return null;
   });
 
-  running += 15 + tb.width;
+  running += 15*p + tb.width;
 
   svg.append('rect')
     .attr('x', running)
-    .attr('width', 10+tb.width)
-    .attr('height', 18+tb.height)
+    .attr('width', 10*p+tb.width)
+    .attr('height', 18*p+tb.height)
     .attr('rx', props.style.rounding || 3)
     .attr('ry', props.style.rounding || 3)
     .attr('fill', (rule === 2) ? (props.style['color-selected'] || '#5C4733') : (props.style.background || '#8f7a66'))
@@ -364,8 +365,8 @@ let toggleButton = function (svg, props, width){
     });
 
   svg.append('text')
-    .attr('x', running + (10+tb.width)/2)
-    .attr('y', (18+tb.height)/2)
+    .attr('x', running + (10*p+tb.width)/2)
+    .attr('y', (18*p+tb.height)/2)
     .attr('text-anchor', 'middle')
     .attr('alignment-baseline', 'central')
     .attr('fill', props.style['font-color'] || '#f9f6f2')

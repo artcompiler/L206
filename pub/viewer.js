@@ -262,13 +262,13 @@ var drawButtons = function drawButtons(div, props) {
   });
 
   var tb = tex1.node().getBBox();
+  var p = tb.height / 22;
+  rec.attr('width', 10 * p + tb.width).attr('height', 18 * p + tb.height);
 
-  rec.attr('width', 10 + tb.width).attr('height', 18 + tb.height);
-
-  tex1.attr('x', (10 + tb.width) / 2).attr('y', (18 + tb.height) / 2);
+  tex1.attr('x', (10 * p + tb.width) / 2).attr('y', (18 * p + tb.height) / 2);
 
   svg.attr('width', props.boardsize).attr('height', g.node().getBBox().height * 1.1).style('float', 'right').style('display', 'block');
-  return 10 + tb.width;
+  return 10 * p + tb.width;
 };
 
 var toggleButton = function toggleButton(svg, props, width) {
@@ -289,34 +289,35 @@ var toggleButton = function toggleButton(svg, props, width) {
   });
 
   var tb = tex1.node().getBBox();
+  var p = tb.height / 22;
 
-  rec.attr('x', width + 5).attr('width', 10 + tb.width).attr('height', 18 + tb.height);
+  rec.attr('x', width + 5 * p).attr('width', 10 * p + tb.width).attr('height', 18 * p + tb.height);
 
-  tex1.attr('x', width + 5 + (10 + tb.width) / 2).attr('y', (18 + tb.height) / 2);
+  tex1.attr('x', width + 5 * p + (10 * p + tb.width) / 2).attr('y', (18 * p + tb.height) / 2);
 
-  var running = width + 20 + tb.width;
+  var running = width + 20 * p + tb.width;
 
-  svg.append('rect').attr('x', running).attr('width', 10 + tb.width).attr('height', 18 + tb.height).attr('rx', props.style.rounding || 3).attr('ry', props.style.rounding || 3).attr('fill', rule === 1 ? props.style['color-selected'] || '#5C4733' : props.style.background || '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
+  svg.append('rect').attr('x', running).attr('width', 10 * p + tb.width).attr('height', 18 * p + tb.height).attr('rx', props.style.rounding || 3).attr('ry', props.style.rounding || 3).attr('fill', rule === 1 ? props.style['color-selected'] || '#5C4733' : props.style.background || '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
     if (rule != 1) {
       return t(1);
     } else return null;
   });
 
-  svg.append('text').attr('x', running + (10 + tb.width) / 2).attr('y', (18 + tb.height) / 2).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.style['font-color'] || '#f9f6f2').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 18 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').style('cursor', 'pointer').text('Mul').on('click', function (d) {
+  svg.append('text').attr('x', running + (10 * p + tb.width) / 2).attr('y', (18 * p + tb.height) / 2).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.style['font-color'] || '#f9f6f2').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 18 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').style('cursor', 'pointer').text('Mul').on('click', function (d) {
     if (rule != 1) {
       return t(1);
     } else return null;
   });
 
-  running += 15 + tb.width;
+  running += 15 * p + tb.width;
 
-  svg.append('rect').attr('x', running).attr('width', 10 + tb.width).attr('height', 18 + tb.height).attr('rx', props.style.rounding || 3).attr('ry', props.style.rounding || 3).attr('fill', rule === 2 ? props.style['color-selected'] || '#5C4733' : props.style.background || '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
+  svg.append('rect').attr('x', running).attr('width', 10 * p + tb.width).attr('height', 18 * p + tb.height).attr('rx', props.style.rounding || 3).attr('ry', props.style.rounding || 3).attr('fill', rule === 2 ? props.style['color-selected'] || '#5C4733' : props.style.background || '#8f7a66').style('cursor', 'pointer').on('click', function (d) {
     if (rule != 2) {
       return t(2);
     } else return null;
   });
 
-  svg.append('text').attr('x', running + (10 + tb.width) / 2).attr('y', (18 + tb.height) / 2).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.style['font-color'] || '#f9f6f2').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 18 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').style('cursor', 'pointer').text('Div').on('click', function (d) {
+  svg.append('text').attr('x', running + (10 * p + tb.width) / 2).attr('y', (18 * p + tb.height) / 2).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.style['font-color'] || '#f9f6f2').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 18 + 'px').style('font-weight', props.style['font-weight'] || 'bold').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').style('cursor', 'pointer').text('Div').on('click', function (d) {
     if (rule != 2) {
       return t(2);
     } else return null;
