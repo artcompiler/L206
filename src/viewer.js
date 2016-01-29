@@ -306,7 +306,6 @@ window.exports.viewer = (function () {
     },
 
     render: function () {
-      console.log(this.props);
       var data = this.props.data;
       if(data){
         if(this.isGridClean(this.props.grid)){
