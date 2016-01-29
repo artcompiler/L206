@@ -268,11 +268,6 @@ var drawButtons = function drawButtons(div, props) {
   tex1.attr('x', (10 + tb.width) / 2).attr('y', (18 + tb.height) / 2);
 
   svg.attr('width', props.boardsize).attr('height', g.node().getBBox().height * 1.1).style('float', 'right').style('display', 'block');
-  if (props.boardsize < 500) {
-    var p = props.boardsize / 500;
-    g.attr('transform', 'scale(' + p + ',' + p + ')');
-    svg.attr('height', g.node().getBBox().height * 1.1 * p);
-  }
   return 10 + tb.width;
 };
 
@@ -861,10 +856,10 @@ window.exports.viewer = (function () {
     },
 
     render: function render() {
+      console.log(this.props);
       var data = this.props.data;
       if (data) {
         if (this.isGridClean(this.props.grid)) {
-          console.log(data.tilecolor[1]);
           var color = d3.scale.log().base(2).domain([Math.min.apply(Math, data.seed), data.goal]).range([data.tilecolor[0], data.tilecolor[1] || data.tilecolor[0]]).interpolate(d3.interpolateLab);
           return React.createElement(
             "div",

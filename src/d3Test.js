@@ -265,13 +265,6 @@ let drawButtons = function (div, props){
     .attr('height', g.node().getBBox().height*1.1)
     .style('float', 'right')
     .style('display', 'block');
-  if(props.boardsize < 500){
-    var p = props.boardsize/500;
-    g
-      .attr('transform', 'scale('+p+','+p+')');
-    svg
-      .attr('height', g.node().getBBox().height*1.1*p);
-  }
   return (10+tb.width);
 };
 
