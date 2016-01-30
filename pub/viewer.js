@@ -329,31 +329,47 @@ var toggleButton = function toggleButton(svg, props, width) {
 var endScreen = function endScreen(svg, props, lose) {
   var boardsize = props.boardsize;
   var scale = boardsize / 500;
-  var g = svg.append('g').attr('opacity', 0).attr('transform', 'scale(' + scale + ',' + scale + ')');
+  var g = svg.append('g').attr('opacity', 0);
   g.transition().duration(1200).attr('opacity', 100);
-  g.append('rect').attr('width', boardsize / scale + 'px').attr('height', boardsize / scale + 'px').attr('fill', 'rgba(238, 228, 218, 0.73)');
+  g.append('rect').attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', props.style.background || 'rgba(238, 228, 218, 0.73)').attr('rx', props.rounding * 2).attr('ry', props.rounding * 2);
   if (lose) {
-    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#776e65').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('Game over!');
-    g.append('rect').attr('x', 191 + 'px') //half board size - width/2
-    .attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
-      return props.restart();
-    });
-    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', 353 + 26 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Try again').on("click", function (d) {
-      return props.restart();
-    });
-  } else {
-    g.append('text').attr('x', boardsize / (2 * scale) + 'px').attr('y', boardsize / (2 * scale) + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', 'bold').style('font-family', font).style('font-size', 60 + 'px').text('You won!');
-    g.append('rect').attr('x', 129 + 'px').attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 118 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
-      return props.restart();
-    });
-    g.append('text').attr('x', 190 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Play again').on("click", function (d) {
+    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('fill', props.style['font-color'] || '#776e65').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', props.style['font-weight'] || 'bold').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 60 + 'px').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('Game over!');
+
+    var rec = g.append('rect').attr('rx', props.buttonstyle.rounding).attr('ry', props.buttonstyle.rounding).attr('fill', props.buttonstyle.background || '#8f7a66').style('cursor', 'pointer').on("click", function (d) {
       return props.restart();
     });
 
-    g.append('rect').attr('x', 252 + 'px').attr('y', 353 + 'px').attr('rx', props.rounding).attr('ry', props.rounding).attr('width', 120 + 'px').attr('height', 40 + 'px').attr('fill', '#8f7a66').on("click", function (d) {
+    var tex1 = g.append('text').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.buttonstyle['font-color'] || '#f9f6f2').style('font-family', props.buttonstyle['font-family'] || font).style('font-size', props.buttonstyle['font-size'] || 18 + 'px').style('font-weight', props.buttonstyle['font-weight'] || 'bold').style('font-style', props.buttonstyle['font-style'] || 'normal').style('text-decoration', props.buttonstyle['text-decoration'] || 'none').style('cursor', 'pointer').text('Try again').on("click", function (d) {
+      return props.restart();
+    });
+
+    var tb = tex1.node().getBBox();
+
+    rec.attr('x', (boardsize - (10 * scale + tb.width)) / 2).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('width', 10 * scale + tb.width).attr('height', 18 * scale + tb.height);
+
+    tex1.attr('x', boardsize / 2).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height));
+  } else {
+    g.append('text').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', props.style['font-weight'] || 'bold').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 60 + 'px').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('You won!');
+
+    var rec = g.append('rect').attr('rx', props.buttonstyle.rounding || 3).attr('ry', props.buttonstyle.rounding || 3).attr('fill', props.buttonstyle.background || '#8f7a66').style('cursor', 'pointer').on("click", function (d) {
+      return props.restart();
+    });
+
+    var tex1 = g.append('text').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.buttonstyle['font-color'] || '#f9f6f2').style('font-family', props.buttonstyle['font-family'] || font).style('font-size', props.buttonstyle['font-size'] || 18 + 'px').style('font-weight', props.buttonstyle['font-weight'] || 'bold').style('font-style', props.buttonstyle['font-style'] || 'normal').style('text-decoration', props.buttonstyle['text-decoration'] || 'none').style('cursor', 'pointer').text('Play again').on("click", function (d) {
+      return props.restart();
+    });
+
+    var tb = tex1.node().getBBox();
+
+    rec.attr('x', boardsize / 2 - (15 * scale + tb.width) - 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height);
+
+    tex1.attr('x', boardsize / 2 - (15 * scale + tb.width) / 2 - 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height));
+    //to translate, add 10*scale and shift over by width
+    g.append('rect').attr('x', boardsize / 2 + 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('rx', props.buttonstyle.rounding || 3).attr('ry', props.buttonstyle.rounding || 3).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height).attr('fill', props.buttonstyle.background || '#8f7a66').style('cursor', 'pointer').on("click", function (d) {
       return props.keepPlaying();
     });
-    g.append('text').attr('x', 310 + 'px').attr('y', 379 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').style('font-family', font).style('font-size', 18 + 'px').style('font-weight', 'bold').style('cursor', 'default').text('Keep going').on("click", function (d) {
+
+    g.append('text').attr('x', boardsize / 2 + (15 * scale + tb.width) / 2 + 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height)).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.buttonstyle['font-color'] || '#f9f6f2').style('font-family', props.buttonstyle['font-family'] || font).style('font-size', props.buttonstyle['font-size'] || 18 + 'px').style('font-weight', props.buttonstyle['font-weight'] || 'bold').style('font-style', props.buttonstyle['font-style'] || 'normal').style('text-decoration', props.buttonstyle['text-decoration'] || 'none').style('cursor', 'pointer').text('Keep going').on("click", function (d) {
       return props.keepPlaying();
     });
   }
@@ -541,8 +557,6 @@ window.exports.viewer = (function () {
   var Game = React.createClass({
     displayName: "Game",
 
-    s: null,
-
     componentDidMount: function componentDidMount() {
       window.addEventListener("keydown", this.handleMove);
     },
@@ -550,6 +564,8 @@ window.exports.viewer = (function () {
     componentWillUnmount: function componentWillUnmount() {
       window.removeEventListener("keydown", this.handleMove);
     },
+
+    s: null,
 
     componentDidUpdate: function componentDidUpdate() {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
@@ -560,7 +576,7 @@ window.exports.viewer = (function () {
           clearTimeout(this.s);
         }
       } else if (this.props.data && !this.props.grid) {
-        //I need to make sure this ONLY runs if a grid definitively won't come in.
+        //Make sure this only runs if we end up with no data after a considerable dekay.
         this.s = setTimeout(this.setup, 1);
       }
     },
@@ -885,7 +901,7 @@ window.exports.viewer = (function () {
                 { width: data.boardsize + 'px', height: data.boardsize + 'px', cursor: "default", className: "game-container" },
                 React.createElement(GridContainer, { size: data.size, style: data.grid, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
                 React.createElement(TileContainer, { color: color, style: data.grid, grid: this.props.grid, size: data.size, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
-                React.createElement(GameMessage, { style: data.message, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
+                React.createElement(GameMessage, { style: data.message || {}, buttonstyle: data.button || {}, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
               )
             )
           );
