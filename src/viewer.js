@@ -7,6 +7,7 @@ import * as React from "react";
 import * as D3Test from "./d3Test";
 window.exports.viewer = (function () {
   var Game = React.createClass({
+
     componentDidMount: function() {
       window.addEventListener("keydown", this.handleMove);
     },
@@ -15,14 +16,18 @@ window.exports.viewer = (function () {
       window.removeEventListener("keydown", this.handleMove);
     },
 
+    s: null,
+
     componentDidUpdate: function() {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       element.select('svg.splash')
         .remove();
-      if(!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)){
+      if(!window.dispatcher.isDispatching() && (this.props.grid || this.props.data) && !this.isGridClean(this.props.grid)){
         this.setup();
-      } else if(this.props.data && !this.isGridClean(this.props.grid)){
-        setTimeout(this.setup, 0);
+        if(this.s){clearTimeout(this.s);}
+      } else if(this.props.data && !this.props.grid){
+        //Make sure this only runs if we end up with no data after a considerable dekay.
+        this.s = setTimeout(this.setup, 1);
       }
     },
 
@@ -71,16 +76,13 @@ window.exports.viewer = (function () {
     },
 
     setup: function () {
-      //this only occurs if there's no data or we're restarting, so it should just overwrite
-      //add start tiles to the grid and then dispatch
-      //as such we'll need addStartTiles and addRandomTile, both of which need to be able to operate on an arbitrary grid.
       if(this.props.grid && !this.isGridClean(this.props.grid)){//it just needs cleanup
         var grid = new Grid(this.props.grid.size, this.props.grid.cells);
         grid.flag = 1;
         this.dispatch({
           grid: grid
         });
-      } else {//we're actually resetting 
+      } else {//we're actually resetting
         var grid = new Grid(this.props.objectCode.size);
         this.addStartTiles(grid, this.props.objectCode.seed);
         grid.flag = 1;
@@ -324,7 +326,7 @@ window.exports.viewer = (function () {
                 <svg width={data.boardsize+'px'} height={data.boardsize+'px'} cursor='default' className='game-container'>
                   <GridContainer size={data.size} style={data.grid} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
                   <TileContainer color={color} style={data.grid} grid={this.props.grid} size={data.size} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
-                  <GameMessage restart={this.setup} keepPlaying={this.keepPlaying} won={this.props.won} over={this.props.over} terminated={this.isGameTerminated()} boardsize={data.boardsize} rounding={data.rounding}/>
+                  <GameMessage style={data.message} rounding={data.grid.rounding} restart={this.setup} keepPlaying={this.keepPlaying} won={this.props.won} over={this.props.over} terminated={this.isGameTerminated()} boardsize={data.boardsize}/>
                 </svg>
               </div>
             </div>

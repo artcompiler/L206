@@ -240,11 +240,13 @@ let translate = (function() {
   function mode(node, options, resume) {
     visit(node.elts[1], options, function (err2, val2) {
       let ret = [false, false, 0];//button, any, currentmode
-
+      let seed = null;
       if(val2.endsWith('threes')){
         ret[2] = 3;
+        seed = [1, 2, 3];
       } else if(val2.endsWith('fibb')){
         ret[2] = 4;
+        seed = [1];
       } else {
         //make a switch statement for div/mult/add using endsWith
         var test = val2.split(" ");
@@ -275,6 +277,9 @@ let translate = (function() {
         val: ret,
       };
       set(node, options, function (err1, val1) {
+        if(seed){
+          val1.seed = seed;
+        }
         resume([].concat(err1).concat(err2), val1);
       }, params);
     });

@@ -541,6 +541,8 @@ window.exports.viewer = (function () {
   var Game = React.createClass({
     displayName: "Game",
 
+    s: null,
+
     componentDidMount: function componentDidMount() {
       window.addEventListener("keydown", this.handleMove);
     },
@@ -552,10 +554,14 @@ window.exports.viewer = (function () {
     componentDidUpdate: function componentDidUpdate() {
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       element.select('svg.splash').remove();
-      if (!window.dispatcher.isDispatching() && this.props.grid && !this.isGridClean(this.props.grid)) {
+      if (!window.dispatcher.isDispatching() && (this.props.grid || this.props.data) && !this.isGridClean(this.props.grid)) {
         this.setup();
-      } else if (this.props.data && !this.isGridClean(this.props.grid)) {
-        setTimeout(this.setup, 0);
+        if (this.s) {
+          clearTimeout(this.s);
+        }
+      } else if (this.props.data && !this.props.grid) {
+        //I need to make sure this ONLY runs if a grid definitively won't come in.
+        this.s = setTimeout(this.setup, 1);
       }
     },
 
@@ -605,9 +611,6 @@ window.exports.viewer = (function () {
     },
 
     setup: function setup() {
-      //this only occurs if there's no data or we're restarting, so it should just overwrite
-      //add start tiles to the grid and then dispatch
-      //as such we'll need addStartTiles and addRandomTile, both of which need to be able to operate on an arbitrary grid.
       if (this.props.grid && !this.isGridClean(this.props.grid)) {
         //it just needs cleanup
         var grid = new _grid.Grid(this.props.grid.size, this.props.grid.cells);
@@ -882,7 +885,7 @@ window.exports.viewer = (function () {
                 { width: data.boardsize + 'px', height: data.boardsize + 'px', cursor: "default", className: "game-container" },
                 React.createElement(GridContainer, { size: data.size, style: data.grid, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
                 React.createElement(TileContainer, { color: color, style: data.grid, grid: this.props.grid, size: data.size, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
-                React.createElement(GameMessage, { restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize, rounding: data.rounding })
+                React.createElement(GameMessage, { style: data.message, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
               )
             )
           );
