@@ -442,13 +442,13 @@ let endScreen = function (svg, props, lose) {
 
     rec
       .attr('x', (boardsize-(10*scale+tb.width))/2)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height)/2)
+      .attr('y', boardsize*(3/4) - (18*scale+tb.height)/2)
       .attr('width', 10*scale+tb.width)
       .attr('height', 18*scale+tb.height);
 
     tex1
       .attr('x', boardsize/2)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height));
+      .attr('y', boardsize*(3/4) - (18*scale+tb.height));
 
   } else {
     g.append('text')
@@ -492,17 +492,17 @@ let endScreen = function (svg, props, lose) {
 
     rec
       .attr('x', boardsize/2 - (15*scale+tb.width) - 5*scale)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height)/2)
+      .attr('y', boardsize*(3/4) - (18*scale+tb.height)/2)
       .attr('width', 15*scale+tb.width)
       .attr('height', 18*scale+tb.height);
 
     tex1
       .attr('x', boardsize/2 - (15*scale+tb.width)/2 - 5*scale)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height));
+      .attr('y', boardsize*(3/4));
 //to translate, add 10*scale and shift over by width
     g.append('rect')
       .attr('x', boardsize/2 + 5*scale)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height)/2)
+      .attr('y', boardsize*(3/4) - (18*scale+tb.height)/2)
       .attr('rx', props.buttonstyle.rounding || 3)
       .attr('ry', props.buttonstyle.rounding || 3)
       .attr('width', 15*scale+tb.width)
@@ -515,7 +515,7 @@ let endScreen = function (svg, props, lose) {
 
     g.append('text')
       .attr('x', boardsize/2 + (15*scale+tb.width)/2 + 5*scale)
-      .attr('y', boardsize*(2/3) + (18*scale+tb.height))
+      .attr('y', boardsize*(3/4))
       .attr('text-anchor', 'middle')
       .attr('alignment-baseline', 'central')
       .attr('fill', props.buttonstyle['font-color'] || '#f9f6f2')

@@ -345,9 +345,9 @@ var endScreen = function endScreen(svg, props, lose) {
 
     var tb = tex1.node().getBBox();
 
-    rec.attr('x', (boardsize - (10 * scale + tb.width)) / 2).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('width', 10 * scale + tb.width).attr('height', 18 * scale + tb.height);
+    rec.attr('x', (boardsize - (10 * scale + tb.width)) / 2).attr('y', boardsize * (3 / 4) - (18 * scale + tb.height) / 2).attr('width', 10 * scale + tb.width).attr('height', 18 * scale + tb.height);
 
-    tex1.attr('x', boardsize / 2).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height));
+    tex1.attr('x', boardsize / 2).attr('y', boardsize * (3 / 4) - (18 * scale + tb.height));
   } else {
     g.append('text').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('fill', '#f9f6f2').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', props.style['font-weight'] || 'bold').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 60 + 'px').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('You won!');
 
@@ -361,15 +361,15 @@ var endScreen = function endScreen(svg, props, lose) {
 
     var tb = tex1.node().getBBox();
 
-    rec.attr('x', boardsize / 2 - (15 * scale + tb.width) - 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height);
+    rec.attr('x', boardsize / 2 - (15 * scale + tb.width) - 5 * scale).attr('y', boardsize * (3 / 4) - (18 * scale + tb.height) / 2).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height);
 
-    tex1.attr('x', boardsize / 2 - (15 * scale + tb.width) / 2 - 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height));
+    tex1.attr('x', boardsize / 2 - (15 * scale + tb.width) / 2 - 5 * scale).attr('y', boardsize * (3 / 4));
     //to translate, add 10*scale and shift over by width
-    g.append('rect').attr('x', boardsize / 2 + 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height) / 2).attr('rx', props.buttonstyle.rounding || 3).attr('ry', props.buttonstyle.rounding || 3).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height).attr('fill', props.buttonstyle.background || '#8f7a66').style('cursor', 'pointer').on("click", function (d) {
+    g.append('rect').attr('x', boardsize / 2 + 5 * scale).attr('y', boardsize * (3 / 4) - (18 * scale + tb.height) / 2).attr('rx', props.buttonstyle.rounding || 3).attr('ry', props.buttonstyle.rounding || 3).attr('width', 15 * scale + tb.width).attr('height', 18 * scale + tb.height).attr('fill', props.buttonstyle.background || '#8f7a66').style('cursor', 'pointer').on("click", function (d) {
       return props.keepPlaying();
     });
 
-    g.append('text').attr('x', boardsize / 2 + (15 * scale + tb.width) / 2 + 5 * scale).attr('y', boardsize * (2 / 3) + (18 * scale + tb.height)).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.buttonstyle['font-color'] || '#f9f6f2').style('font-family', props.buttonstyle['font-family'] || font).style('font-size', props.buttonstyle['font-size'] || 18 + 'px').style('font-weight', props.buttonstyle['font-weight'] || 'bold').style('font-style', props.buttonstyle['font-style'] || 'normal').style('text-decoration', props.buttonstyle['text-decoration'] || 'none').style('cursor', 'pointer').text('Keep going').on("click", function (d) {
+    g.append('text').attr('x', boardsize / 2 + (15 * scale + tb.width) / 2 + 5 * scale).attr('y', boardsize * (3 / 4)).attr('text-anchor', 'middle').attr('alignment-baseline', 'central').attr('fill', props.buttonstyle['font-color'] || '#f9f6f2').style('font-family', props.buttonstyle['font-family'] || font).style('font-size', props.buttonstyle['font-size'] || 18 + 'px').style('font-weight', props.buttonstyle['font-weight'] || 'bold').style('font-style', props.buttonstyle['font-style'] || 'normal').style('text-decoration', props.buttonstyle['text-decoration'] || 'none').style('cursor', 'pointer').text('Keep going').on("click", function (d) {
       return props.keepPlaying();
     });
   }
