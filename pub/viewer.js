@@ -162,7 +162,7 @@ var drawGrid = function drawGrid(svg, props) {
   var spacing = props.spacing || 15 * (props.boardsize / 500) / (props.size / 4);
   svg.selectAll('rect').remove();
   var tilesize = (props.boardsize - spacing * (props.size + 1)) / props.size;
-  svg.append('rect').attr('rx', props.style.rounding * 2).attr('ry', props.style.rounding * 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', props.style.background);
+  svg.append('rect').attr('rx', tilesize / 4 > props.style.rounding ? props.style.rounding * 2 : tilesize / 2).attr('ry', tilesize / 4 > props.style.rounding ? props.style.rounding * 2 : tilesize / 2).attr('width', props.boardsize + 'px').attr('height', props.boardsize + 'px').attr('fill', props.style.background);
   for (var x = 0; x < props.size; x++) {
     for (var y = 0; y < props.size; y++) {
       svg.append('rect').attr('rx', props.style.rounding).attr('ry', props.style.rounding).attr('width', tilesize + 'px').attr('height', tilesize + 'px').attr('x', spacing + x * (tilesize + spacing)).attr('y', spacing + y * (tilesize + spacing)).attr('fill', props.style.foreground);
@@ -327,11 +327,13 @@ var toggleButton = function toggleButton(svg, props, width) {
 };
 
 var endScreen = function endScreen(svg, props, lose) {
+  var spacing = props.spacing || 15 * (props.boardsize / 500) / (props.size / 4);
+  var tilesize = (props.boardsize - spacing * (props.size + 1)) / props.size;
   var boardsize = props.boardsize;
   var scale = boardsize / 500;
   var g = svg.append('g').attr('opacity', 0);
   g.transition().duration(1200).attr('opacity', 100);
-  g.append('rect').attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', props.style.background || 'rgba(238, 228, 218, 0.73)').attr('rx', props.rounding * 2).attr('ry', props.rounding * 2);
+  g.append('rect').attr('width', boardsize + 'px').attr('height', boardsize + 'px').attr('fill', props.style.background || 'rgba(238, 228, 218, 0.73)').attr('rx', tilesize / 4 > props.rounding ? props.rounding * 2 : tilesize / 2).attr('ry', tilesize / 4 > props.rounding ? props.rounding * 2 : tilesize / 2);
   if (lose) {
     g.append('text').attr('x', boardsize / 2 + 'px').attr('y', boardsize / 2 + 'px').attr('fill', props.style['font-color'] || '#776e65').attr('text-anchor', 'middle').attr('alignment-baseline', 'central').style('font-weight', props.style['font-weight'] || 'bold').style('font-family', props.style['font-family'] || font).style('font-size', props.style['font-size'] || 60 + 'px').style('font-style', props.style['font-style'] || 'normal').style('text-decoration', props.style['text-decoration'] || 'none').text('Game over!');
 
@@ -901,7 +903,7 @@ window.exports.viewer = (function () {
                 { width: data.boardsize + 'px', height: data.boardsize + 'px', cursor: "default", className: "game-container" },
                 React.createElement(GridContainer, { size: data.size, style: data.grid, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
                 React.createElement(TileContainer, { color: color, style: data.grid, grid: this.props.grid, size: data.size, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
-                React.createElement(GameMessage, { style: data.message || {}, buttonstyle: data.button || {}, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
+                React.createElement(GameMessage, { style: data.message || {}, size: data.size, spacing: data.spacing, buttonstyle: data.button || {}, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
               )
             )
           );

@@ -11,8 +11,8 @@ let drawGrid = function (svg, props) {
     .remove();
   var tilesize = (props.boardsize - spacing*(props.size+1))/props.size;
   svg.append('rect')
-    .attr('rx', props.style.rounding*2)
-    .attr('ry', props.style.rounding*2)
+    .attr('rx', (tilesize/4 > props.style.rounding) ? props.style.rounding*2 : tilesize/2)
+    .attr('ry', (tilesize/4 > props.style.rounding) ? props.style.rounding*2 : tilesize/2)
     .attr('width', props.boardsize+'px')
     .attr('height', props.boardsize+'px')
     .attr('fill', props.style.background);
@@ -387,6 +387,8 @@ let toggleButton = function (svg, props, width){
 };
 
 let endScreen = function (svg, props, lose) {
+  var spacing = props.spacing || 15*(props.boardsize/500)/(props.size/4);
+  var tilesize = (props.boardsize - spacing*(props.size+1))/props.size;
   var boardsize = props.boardsize;
   var scale = boardsize/500;
   var g = svg.append('g')
@@ -398,8 +400,8 @@ let endScreen = function (svg, props, lose) {
     .attr('width', boardsize+'px')
     .attr('height', boardsize+'px')
     .attr('fill', props.style.background || 'rgba(238, 228, 218, 0.73)')
-    .attr('rx', props.rounding*2)
-    .attr('ry', props.rounding*2);
+    .attr('rx', (tilesize/4 > props.rounding) ? props.rounding*2 : tilesize/2)
+    .attr('ry', (tilesize/4 > props.rounding) ? props.rounding*2 : tilesize/2);
   if(lose){
     g.append('text')
       .attr('x', boardsize/2+'px')

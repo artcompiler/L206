@@ -326,7 +326,7 @@ window.exports.viewer = (function () {
                 <svg width={data.boardsize+'px'} height={data.boardsize+'px'} cursor='default' className='game-container'>
                   <GridContainer size={data.size} style={data.grid} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
                   <TileContainer color={color} style={data.grid} grid={this.props.grid} size={data.size} boardsize={data.boardsize} spacing={data.spacing} rounding={data.rounding}/>
-                  <GameMessage style={data.message || {}} buttonstyle={data.button || {}} rounding={data.grid.rounding} restart={this.setup} keepPlaying={this.keepPlaying} won={this.props.won} over={this.props.over} terminated={this.isGameTerminated()} boardsize={data.boardsize}/>
+                  <GameMessage style={data.message || {}} size={data.size} spacing={data.spacing} buttonstyle={data.button || {}} rounding={data.grid.rounding} restart={this.setup} keepPlaying={this.keepPlaying} won={this.props.won} over={this.props.over} terminated={this.isGameTerminated()} boardsize={data.boardsize}/>
                 </svg>
               </div>
             </div>
