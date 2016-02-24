@@ -570,6 +570,9 @@ window.exports.viewer = (function () {
     s: null,
 
     componentDidUpdate: function componentDidUpdate() {
+      console.log(window.dispatcher.isDispatching());
+      console.log(this.props.grid);
+      console.log(this.isGridClean(this.props.grid));
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       element.select('svg.splash').remove();
       if (!window.dispatcher.isDispatching() && (this.props.grid || this.props.data) && !this.isGridClean(this.props.grid)) {
@@ -577,7 +580,7 @@ window.exports.viewer = (function () {
         if (this.s) {
           clearTimeout(this.s);
         }
-      } else if (this.props.data && !this.props.grid) {
+      } else if (this.props.data && !this.isGridClean(this.props.grid)) {
         //Make sure this only runs if we end up with no data after a considerable dekay.
         this.s = setTimeout(this.setup, 1);
       }
@@ -881,39 +884,31 @@ window.exports.viewer = (function () {
 
     render: function render() {
       var data = this.props.data;
-      if (data) {
-        if (this.isGridClean(this.props.grid)) {
-          var color = d3.scale.log().base(2).domain([Math.min.apply(Math, data.seed), data.goal]).range([data.tilecolor[0], data.tilecolor[1] || data.tilecolor[0]]).interpolate(d3.interpolateLab);
-          return React.createElement(
+      if (data && this.isGridClean(this.props.grid)) {
+        var color = d3.scale.log().base(2).domain([Math.min.apply(Math, data.seed), data.goal]).range([data.tilecolor[0], data.tilecolor[1] || data.tilecolor[0]]).interpolate(d3.interpolateLab);
+        return React.createElement(
+          "div",
+          null,
+          React.createElement(
             "div",
-            null,
+            { style: { 'width': data.boardsize + 'px' }, className: "gcontainer" },
+            data.score ? React.createElement(ScoresContainer, { style: data.score, score: this.props.score, best: this.props.best || 0, boardsize: data.boardsize, rounding: data.rounding }) : null,
+            data.title || data.description ? React.createElement(HeaderContainer, { title: data.title, desc: data.description, boardsize: data.boardsize }) : null,
+            data.button || data.mode[0] ? React.createElement(ButtonContainer, { restart: this.setup, style: data.button || {}, clearBest: this.clearBest, toggle: this.toggle, mode: data.mode, rule: this.props.rule, boardsize: data.boardsize, rounding: data.rounding }) : null
+          ),
+          React.createElement("br", null),
+          React.createElement(
+            "div",
+            { style: { 'width': data.boardsize + 'px' }, className: "game-container" },
             React.createElement(
-              "div",
-              { style: { 'width': data.boardsize + 'px' }, className: "gcontainer" },
-              data.score ? React.createElement(ScoresContainer, { style: data.score, score: this.props.score, best: this.props.best || 0, boardsize: data.boardsize, rounding: data.rounding }) : null,
-              data.title || data.description ? React.createElement(HeaderContainer, { title: data.title, desc: data.description, boardsize: data.boardsize }) : null,
-              data.button || data.mode[0] ? React.createElement(ButtonContainer, { restart: this.setup, style: data.button || {}, clearBest: this.clearBest, toggle: this.toggle, mode: data.mode, rule: this.props.rule, boardsize: data.boardsize, rounding: data.rounding }) : null
-            ),
-            React.createElement("br", null),
-            React.createElement(
-              "div",
-              { style: { 'width': data.boardsize + 'px' }, className: "game-container" },
-              React.createElement(
-                "svg",
-                { width: data.boardsize + 'px', height: data.boardsize + 'px', cursor: "default", className: "game-container" },
-                React.createElement(GridContainer, { size: data.size, style: data.grid, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
-                React.createElement(TileContainer, { color: color, style: data.grid, grid: this.props.grid, size: data.size, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
-                React.createElement(GameMessage, { style: data.message || {}, size: data.size, spacing: data.spacing, buttonstyle: data.button || {}, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
-              )
+              "svg",
+              { width: data.boardsize + 'px', height: data.boardsize + 'px', cursor: "default", className: "game-container" },
+              React.createElement(GridContainer, { size: data.size, style: data.grid, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
+              React.createElement(TileContainer, { color: color, style: data.grid, grid: this.props.grid, size: data.size, boardsize: data.boardsize, spacing: data.spacing, rounding: data.rounding }),
+              React.createElement(GameMessage, { style: data.message || {}, size: data.size, spacing: data.spacing, buttonstyle: data.button || {}, rounding: data.grid.rounding, restart: this.setup, keepPlaying: this.keepPlaying, won: this.props.won, over: this.props.over, terminated: this.isGameTerminated(), boardsize: data.boardsize })
             )
-          );
-        } else {
-          return React.createElement(
-            "div",
-            null,
-            "\"Loading or suffering an error, wait if applicable.\""
-          );
-        }
+          )
+        );
       } else {
         return React.createElement(
           "div",
