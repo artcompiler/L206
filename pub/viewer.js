@@ -561,18 +561,58 @@ window.exports.viewer = (function () {
 
     componentDidMount: function componentDidMount() {
       window.addEventListener("keydown", this.handleMove);
+      window.addEventListener("touchstart", this.touchstart);
+      window.addEventListener("touchmove", this.touchmove);
+      window.addEventListener("touchend", this.touchend);
     },
 
     componentWillUnmount: function componentWillUnmount() {
       window.removeEventListener("keydown", this.handleMove);
+      window.removeEventListener("touchstart", this.touchstart);
+      window.removeEventListener("touchmove", this.touchmove);
+      window.removeEventListener("touchend", this.touchend);
+    },
+
+    touchStartClientX: null,
+    touchStartClientY: null,
+
+    touchstart: function touchstart(event) {
+      if (event.touches.length > 1) {
+        return; //only register one-fingered touches
+      }
+      this.touchStartClientX = event.touches[0].clientX;
+      this.touchStartClientY = event.touches[0].clientY;
+      event.preventDefault();
+    },
+
+    touchmove: function touchmove(event) {
+      event.preventDefault();
+    },
+
+    touchend: function touchend(event) {
+      if (event.touches.length > 0) {
+        return; //only register if completely done
+      }
+
+      var touchEndClientX, touchEndClientY;
+
+      touchEndClientX = event.changedTouches[0].clientX;
+      touchEndClientY = event.changedTouches[0].clientY;
+
+      var dx = touchEndClientX - this.touchStartClientX;
+      var dy = touchEndClientY - this.touchStartClientY;
+
+      if (Math.max(Math.abs(dx), Math.abs(dy) > 10)) {
+        // (right : left) : (down : up)
+        var out = Math.abs(dx) > Math.abs(dy) ? dx > 0 ? 1 : 3 : dy > 0 ? 2 : 0;
+        this.move(out);
+      }
+      event.preventDefault();
     },
 
     s: null,
 
     componentDidUpdate: function componentDidUpdate() {
-      console.log(window.dispatcher.isDispatching());
-      console.log(this.props.grid);
-      console.log(this.isGridClean(this.props.grid));
       var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
       element.select('svg.splash').remove();
       if (!window.dispatcher.isDispatching() && (this.props.grid || this.props.data) && !this.isGridClean(this.props.grid)) {
