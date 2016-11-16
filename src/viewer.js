@@ -5,7 +5,7 @@ import {assert, message, messages, reserveCodeRange} from "./assert.js";
 import {Grid, Tile} from "./grid.js";
 import * as React from "react";
 import * as D3Test from "./d3Test";
-window.exports.viewer = (function () {
+window.gcexports.viewer = (function () {
   var Game = React.createClass({
 
     componentDidMount: function() {
@@ -62,7 +62,7 @@ window.exports.viewer = (function () {
     s: null,
 
     componentDidUpdate: function() {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       element.select('svg.splash')
         .remove();
       if(!window.dispatcher.isDispatching() && (this.props.grid || this.props.data) && !this.isGridClean(this.props.grid)){
@@ -382,12 +382,12 @@ window.exports.viewer = (function () {
   });
   var HeaderContainer = React.createClass({
     componentDidUpdate: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       D3Test.drawHeader(element, this.props);
     },
 
     componentDidMount: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       D3Test.drawHeader(element, this.props);
     },
 
@@ -406,7 +406,7 @@ window.exports.viewer = (function () {
 
     componentDidUpdate: function (prevProps) {
       var difference = this.props.score - prevProps.score;
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       element.selectAll('g')
         .remove();
       var loc = D3Test.drawScore(element, this.props);
@@ -417,7 +417,7 @@ window.exports.viewer = (function () {
     },
 
     componentDidMount: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       element.selectAll('g')
         .remove();
       D3Test.drawScore(element, this.props);
@@ -433,7 +433,7 @@ window.exports.viewer = (function () {
 
   var ButtonContainer = React.createClass({
     componentDidUpdate: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       var width = D3Test.drawButtons(element, this.props);
       if(this.props.mode[0]){
         D3Test.toggleButton(element.select('svg.buttons'), this.props, width);
@@ -441,7 +441,7 @@ window.exports.viewer = (function () {
     },
 
     componentDidMount: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       var width = D3Test.drawButtons(element, this.props);
       if(this.props.mode[0]){
         D3Test.toggleButton(element.select('svg.buttons'), this.props, width);
@@ -462,12 +462,12 @@ window.exports.viewer = (function () {
     },
 
     componentDidUpdate: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       D3Test.drawGrid(element, this.props);
     },
 
     componentDidMount: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       D3Test.drawGrid(element, this.props);
     },
 
@@ -482,7 +482,7 @@ window.exports.viewer = (function () {
   var TileContainer = React.createClass({
     componentDidMount: function () {
       if(this.props.grid){
-        var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+        var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
         element.selectAll('g')
           .remove();
         //update based on the new grid
@@ -507,7 +507,7 @@ window.exports.viewer = (function () {
     },
 
     componentDidUpdate: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       element.selectAll('g')
         .remove();
       //update based on the new grid
@@ -531,7 +531,7 @@ window.exports.viewer = (function () {
 
   var GameMessage = React.createClass({
     componentDidMount: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       var ac = this;
       if(this.props.terminated && this.props.won){
         D3Test.endScreen(element, ac.props, false);
@@ -539,7 +539,7 @@ window.exports.viewer = (function () {
     },
 
     componentDidUpdate: function () {
-      var element = d3.select(window.exports.ReactDOM.findDOMNode(this));
+      var element = d3.select(window.gcexports.ReactDOM.findDOMNode(this));
       var ac = this;
       element.selectAll('g')
         .remove();

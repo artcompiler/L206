@@ -1,4 +1,4 @@
-exports.globalLexicon = {
+window.gcexports.globalLexicon = {
     "true" : { "tk": 0x14, "cls": "val", "length": 0 },
     "false" : { "tk": 0x14, "cls": "val", "length": 0 },
     "play" : { "tk": 0x01, "name": "PLAY", "cls": "function", "length": 0, "arity": 0 },
